@@ -1,0 +1,168 @@
+// COMIENZA EL JS PARA EL TAB 2
+
+//armar selects
+function armarSelectMunicipioCarnet(){
+    var html = '';
+    var provincia = $('#provinciaCarnet').val();
+    $("option").remove('.cambioMunicipioCarnet');
+    $("#inicio").after('<option class="cambioMunicipioCarnet"></option>');
+
+    {% for municipio in  municipios %}
+        var idProvincia = '{{ municipio.getProvincia().id }}';
+
+        if (idProvincia == provincia) {
+            var id = {{ municipio.id }};
+            var name = '{{ municipio.nombre }}';
+            html += '<option class="cambioMunicipioCarnet" value="' + id + '">' + name + '</option>';
+
+        }
+    {% endfor %}
+    $(".cambioMunicipioCarnet").replaceWith(html);
+}
+armarSelectMunicipioCarnet();
+
+function armarSelectMunicipioResidencia(){
+    var html = '';
+    var provincia = $('#provinciaResidencia').val();
+    $("option").remove('.cambioMunicipioResidencia');
+    $("#inicio2").after('<option class="cambioMunicipioResidencia"></option>');
+
+    {% for municipio in  municipios %}
+        var idProvincia = '{{ municipio.getProvincia().id }}';
+
+        if (idProvincia == provincia) {
+            var id = {{ municipio.id }};
+            var name = '{{ municipio.nombre }}';
+            html += '<option class="cambioMunicipioResidencia" value="' + id + '">' + name + '</option>';
+
+        }
+    {% endfor %}
+    $(".cambioMunicipioResidencia").replaceWith(html);
+}
+armarSelectMunicipioResidencia();
+
+function armarSelectUnidadAtencion(){
+    var html = '';
+    var municipio = $('#municipioResidencia').val();
+    $("option").remove('.cambioUnidadAtencion');
+    $("#inicio3").after('<option class="cambioUnidadAtencion"></option>');
+
+    {% for unidad in  unidades %}
+        var idMunicipio = '{{ unidad.getMunicipio().id }}';
+
+        if (idMunicipio == municipio) {
+            var id = {{ unidad.id }};
+            var name = '{{ unidad.nombre }}';
+            html += '<option class="cambioUnidadAtencion" value="' + id + '">' + name + '</option>';
+
+        }
+    {% endfor %}
+    $(".cambioUnidadAtencion").replaceWith(html);
+}
+armarSelectUnidadAtencion();
+
+//relacionar selects
+
+$('#provinciaCarnet').on('change', function () {
+
+    $("#inicio").html('Seleccione el municipio del carnet...').val('0');
+    armarSelectMunicipioCarnet();
+});
+
+$('#provinciaResidencia').on('change', function () {
+
+    $("#inicio2").html('Seleccione el municipio de residencia...').val('0');
+    $("option").remove('.cambioUnidadAtencion');
+    $("#inicio3").after('<option class="cambioUnidadAtencion"></option>').html('Seleccione la unidad de atención...').val('');
+    armarSelectMunicipioResidencia();
+    $("#unidadAtencion").prop('disabled' , true);
+});
+
+$('#municipioResidencia').on('change', function () {
+
+    $("#inicio3").html('Seleccione la unidad de atención...').val('0');
+    if ($('#municipioResidencia').val() == '') {
+
+        $("#unidadAtencion").prop('disabled' , true);
+        $("option").remove('.cambioUnidadAtencion');
+        $("#inicio3").after('<option class="cambioUnidadAtencion"></option>');
+    }else {
+        armarSelectUnidadAtencion();
+        $("#unidadAtencion").prop('disabled' , false);
+    }
+});
+
+$('#btnGuardarLocalizacion').click(function () {
+
+    if ($("#direccionCarnet").val().trim() == '') {
+        alertify.alert('<strong>El campo dirección de carnet es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    if ($("#direccionResidencia").val().trim() == '') {
+        alertify.alert('<strong>El campo dirección de residencia es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+    if ($("#municipioCarnet").val() == '0') {
+        alertify.alert('<strong>El campo municipio de carnet es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+    if ($("#municipioResidencia").val() == '0') {
+        alertify.alert('<strong>El campo municipio de residencia es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    if ($("#unidadAtencion").val() == '0') {
+        alertify.alert('<strong>El campo unidad de atención es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    $(".preload").removeClass('hidden');
+
+    var mat_datos = {
+
+        idPaciente: '{{ paciente.getId() }}',
+        direccionCarnet: $("#direccionCarnet").val(),
+        municipioCarnet: $("#municipioCarnet").val(),
+        direccionResidencia: $("#direccionResidencia").val(),
+        municipioResidencia: $("#municipioResidencia").val(),
+        unidadAtencion: $("#unidadAtencion").val(),
+    };
+
+    $.ajax({
+    type: "POST",
+    dataType: "html",
+    url: '{{ path("updatePacienteLocalizacion") }}',
+    data: mat_datos
+    }).done(function (data) {
+
+        $(".preload").addClass('hidden');
+        if (data == 'ok') {
+
+            alertify.alert('<strong>Los datos modificados han sido guardado correctamente</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+            .set('label', 'Aceptar')
+        } else {
+            alertify.alert('<strong>' + data + '</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar')
+        }
+    });
+});

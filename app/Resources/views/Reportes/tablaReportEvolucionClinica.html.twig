@@ -1,0 +1,43 @@
+<div id="containerResultado" style="display:none;margin-top: 20px;" >
+    <div class="top-datatable" >
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="no-margin">
+                        <h2 class="no-padding" style="color: #999">Pacientes encontrados</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row" style="background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 2px solid #434242;">
+            <div class="col-md-12">
+                <table id="dataPaciente" class="display" cellspacing="0" width="100%" >
+                    <thead>
+                    <tr>
+                        <th>Nombres y Apellidos</th>
+                        <th>Carnet Identidad</th>
+                        <th>Etiología</th>
+                        <th>Tipo Hepatitis</th>
+                        <th>Fecha Diagnóstico</th>
+                        <th>Unidad Atención</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for paciente in pacientes %}
+                        <tr data-id ="{{ paciente.id }}">
+                            <td>{{ paciente.nombreCompleto() }}</td>
+                            <td class="text-center">{{ paciente.carnetIdentidad }}</td>
+                            <td class="text-center">{{ paciente.getEtiologia().nombre }}</td>
+                            <td class="text-center">{{ paciente.getTipoHepatitis().nombre }}</td>
+                            <td class="text-center">{{ paciente.fechaDiagnostico|date('d-m-Y') }}</td>
+                            <td>{{ paciente.getUnidadAtencion() != null ? paciente.getUnidadAtencion().nombre : '' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

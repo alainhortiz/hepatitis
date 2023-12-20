@@ -1,0 +1,347 @@
+/*Declaraciones*/
+$("#addInmunoglobulina  ,  #editInmunoglobulina").checkboxradio();
+$("#addFechaInmunoglobulina , #addFechaNacimiento , #addFechaAlta, #editFechaAlta , #addVacunaUno , #addVacunaDos  , #addVacunaTercera  , #addReactivacion, #addFechaPrueba, #editFechaInmunoglobulina , #editFechaNacimiento , #editVacunaUno , #editVacunaDos  , #editVacunaTercera  , #editReactivacion, #editFechaPrueba").datepicker({
+    firstDay: 1,
+    dateFormat: 'dd-mm-yy',
+    changeMonth: true,
+    changeYear: true
+});
+
+$(function () {
+    $("#tabs").tabs();
+    $("#tabs2").tabs();
+});
+
+/*  Validaciones  */
+$('#addInmunoglobulina').on("click", function () {
+
+    if ($('#addInmunoglobulina').prop('checked')) {
+        $('#addFechaInmunoglobulina').prop('disabled', false);
+    } else {
+        $('#addFechaInmunoglobulina').prop('disabled', true);
+    }
+});
+
+$('#addHijo').on('click', function () {
+    $('#containerModificarHijo').css("display", "none");
+    $('#containerFormHijo').css("display", "block");
+});
+
+
+//relacionar selects
+$('#addPrueba').on('change', function () {
+    var html = '';
+    var prueba = $('#addPrueba').val();
+    if (prueba == '') {
+        $("#addResultado").prop('disabled', true);
+        $("option").remove('.cambioResultado');
+    } else {
+        $("option").remove('.cambioResultado');
+        $("#inicio2").after('<option class="cambioResultado"></option>');
+
+        {% for resultadoPrueba in  resultadosPruebas %}
+            var idPrueba = '{{ resultadoPrueba.getPrueba().id }}';
+
+            if (idPrueba == prueba) {
+            var id = {{ resultadoPrueba.id }};
+            var name = '{{ resultadoPrueba.resultadoPrueba }}';
+            html += '<option class="cambioResultado" value="' + id + '">' + name + '</option>';
+
+            }
+        {% endfor %}
+        $(".cambioResultado").replaceWith(html);
+    }
+    var id = '';
+    var valor = 0;
+    {% for prueba in pruebas %}
+        id = '{{ prueba.id }}';
+        if (id == prueba) {
+        {% if prueba.valor == 1 %}
+            valor = 1;
+        {% endif %}
+        }
+    {% endfor %}
+    if (valor == 1) {
+        $('#mostrarValor').css("display", "block");
+    } else {
+        $('#mostrarValor').css("display", "none");
+    }
+});
+
+//funcion que agrega las vacunas y las visualiza en la tabla de adicionar
+    var hijoVacunas = [];
+    var I = 0;
+    $('#agregarBtnVacunas').on('click', function () {
+
+        var vacunaPrimera = $("#addVacunaUno").val();
+        var vacunaSegunda = $("#addVacunaDos").val();
+        var vacunaTercera = $("#addVacunaTercera").val();
+        var reactivacion = $("#addReactivacion").val();
+        var idVacuna = 0;
+
+        if (vacunaSegunda != '') {
+            if (!($("#addVacunaDos").val() > $("#addVacunaUno").val())) {
+                alertify.alert('<strong>Error: la fecha de las 2da Dosis no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                .set('label', 'Aceptar');
+                return false;
+            }
+        }
+
+        if (vacunaTercera != '') {
+            if (!($("#addVacunaTercera").val() > $("#addVacunaUno").val())) {
+                alertify.alert('<strong>Error: la fecha de las 3ra Dosis no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                .set('label', 'Aceptar');
+                return false;
+            }
+        }
+
+        if (reactivacion != '') {
+            if (!($("#addReactivacion").val() > $("#addVacunaUno").val())) {
+            alertify.alert('<strong>Error: la fecha de la reactivación no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+            return false;
+            }
+        }
+
+{#        if (vacunaTercera != '') {#}
+{#            if (monthDiff($("#addVacunaTercera").val(), $("#addVacunaUno").val()) < 6) {#}
+{#                alertify.alert('<strong>Error: la fecha de las 3ra Dosis no puede ser menor que 6 meses.</strong>')#}
+{#                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +#}
+{#                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')#}
+{#                .set('label', 'Aceptar');#}
+{#                return false;#}
+{#            }#}
+{#        }#}
+
+{#        if (reactivacion != '') {#}
+{#            if (monthDiff($("#addReactivacion").val(), $("#addVacunaUno").val()) < 12) {#}
+{#                alertify.alert('<strong>Error: la fecha de la reactivación no puede ser menor que 1 año.</strong>')#}
+{#                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +#}
+{#                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')#}
+{#                .set('label', 'Aceptar');#}
+{#                return false;#}
+{#            }#}
+{#        }#}
+
+        $('#esquemasVacuna tbody').append('<tr data-id="'+I+'"><td id="primera' + I + '">'+ vacunaPrimera +'</td><td id="segunda' + I + '">'+ vacunaSegunda +'</td><td id="tercera' + I + '">'+ vacunaTercera +'</td><td id="reactivacion' + I + '">'+ reactivacion +'</td><td>' +
+                '<span class="btn btn-primary btn-xs editar"><i class="fa fa-pencil "></i> Editar</span>      ' +
+                '<span class="btn btn-danger btn-xs borrar" ><i class="fa fa-trash-o "></i> Borrar</span>' +
+                '</td></tr>');
+        hijoVacunas.push({
+            vacunaPrimera: vacunaPrimera,
+            vacunaSegunda: vacunaSegunda,
+            vacunaTercera: vacunaTercera,
+            reactivacion: reactivacion,
+        });
+        I++;
+
+        //desactivando el boton de agregar un nuevo esquema  de vacunacion si el ultimo esquema no esta completo
+        if(hijoVacunas[hijoVacunas.length - 1].vacunaPrimera == ''
+        || hijoVacunas[hijoVacunas.length - 1].vacunaSegunda == ''
+        || hijoVacunas[hijoVacunas.length - 1].vacunaTercera == ''
+        || hijoVacunas[hijoVacunas.length - 1].reactivacion == '')
+        {
+            $('#agregarBtnVacunas').prop("disabled", true);
+        }
+
+        $("#addVacunaUno").val('');
+        $("#addVacunaDos").val('');
+        $("#addVacunaTercera").val('');
+        $("#addReactivacion").val('');
+
+    });
+//funcion que carga los datos del esquema en la modal
+    var idFila = '';
+    $('#esquemasVacuna tbody').on('click', '.editar', function () {
+{#      alert('addCargar');#}
+        var row = $(this).parents('tr');
+        id = row.data('id');
+        var primera = hijoVacunas[id].vacunaPrimera;
+        var segunda = hijoVacunas[id].vacunaSegunda;
+        var tercera = hijoVacunas[id].vacunaTercera;
+        var reactivacion = hijoVacunas[id].reactivacion;
+        $('#editModalPrimeraDosis').val(primera);
+        $('#editModalSegundaDosis').val(segunda);
+        $('#editModalTerceraDosis').val(tercera);
+        $('#editModalReactivacion').val(reactivacion);
+        idFila = id;
+        $('#editEsquemaVacunas').modal('show');
+    });
+
+//funcion que modifica el esquema en el arreglo y en la tabla
+{#    $('#maceptarEditEsquemaVacunas').on('click',function () {#}
+{#    alert('add');#}
+{#    hijoVacunas[id].vacunaPrimera = $('#editModalPrimeraDosis').val();#}
+{#    hijoVacunas[id].vacunaSegunda = $('#editModalSegundaDosis').val();#}
+{#    hijoVacunas[id].vacunaTercera = $('#editModalTerceraDosis').val();#}
+{#    hijoVacunas[id].reactivacion = $('#editModalReactivacion').val();#}
+{#    $("#primera"+idFila).html($('#editModalPrimeraDosis').val());#}
+{#    $("#segunda"+idFila).html($('#editModalSegundaDosis').val());#}
+{#    $("#tercera"+idFila).html($('#editModalTerceraDosis').val());#}
+{#    $("#reactivacion"+idFila).html($('#editModalReactivacion').val());#}
+{#    if(hijoVacunas[id].vacunaPrimera != '' && hijoVacunas[id].vacunaSegunda  != '' && hijoVacunas[id].vacunaTercera  != '' && hijoVacunas[id].reactivacion != '')#}
+{#    {#}
+{#        $('#agregarBtnVacunas').prop("disabled", false);#}
+{#    }#}
+
+{#    $('#editEsquemaVacunas').modal('hide');#}
+{#    });#}
+
+//funcion que elimina las vacunas del arreglo y de la tabla de editar
+    $('#esquemasVacuna tbody').on('click', '.borrar', function () {
+    var row = $(this).parents('tr');
+    id = row.data('id');
+    row.fadeOut();
+    {#hijoVacunas.splice(id, 1);#}
+    delete hijoVacunas[id];
+    let cant = 0;
+    let pos = 0;
+    for (x = 0; x < hijoVacunas.length; x++) {
+        if(hijoVacunas[x] != null){ cant++; pos = x; }
+    }
+    if(cant == 0 || (hijoVacunas[pos].vacunaPrimera != '' && hijoVacunas[pos].vacunaSegunda  != '' && hijoVacunas[pos].vacunaTercera  != '' && hijoVacunas[pos].reactivacion != '') )
+    { $('#agregarBtnVacunas').prop("disabled", false); }
+    });
+
+//funcion que agrega la prueba y la visualiza en la tabla de adicionar
+    var hijoPruebas = [];
+    var J = 0;
+    $('#agregarBtnPruebas').on('click', function () {
+
+        var prueba = $("#addPrueba").val();
+        var resultado = $("#addResultado").val();
+        var valor = $("#addValor").val();
+        var fechaPrueba = $("#addFechaPrueba").val();
+
+        var mostrarValor = 0;
+        {% for prueba in pruebas %}
+            id = '{{ prueba.id }}';
+            if (id == prueba) {
+                {% if prueba.valor == 1 %}
+                    mostrarValor = 1;
+                {% endif %}
+            }
+        {% endfor %}
+
+        if ($('#addPrueba').val() == '0') {
+            alertify.alert('<strong>Debe seleccionar la prueba realizada.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+        } else if ($('#addResultado').val() == '0') {
+            alertify.alert('<strong>Debe seleccionar el resultado de la prueba.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+        } else if (mostrarValor == 1 && $('#addValor').val() == '') {
+            alertify.alert('<strong>Debe introducir un valor para esta prueba.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+            return false;
+        } else if ($("#addFechaPrueba").val() == '') {
+            alertify.alert('<strong>Debe seleccionar la fecha de que se realiza la prueba.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+            return false;
+        } else {
+            {% for prueba in  pruebas %}
+                var idPrueba = '{{ prueba.id }}';
+
+                if (idPrueba == prueba) {
+                    var nombrePrueba = '{{ prueba.nombre }}';
+                }
+            {% endfor %}
+
+                    {% for resultadoPrueba in  resultadosPruebas %}
+                        var idResultadoPrueba = '{{ resultadoPrueba.id }}';
+
+                        if (idResultadoPrueba == resultado) {
+                            var nombreResultadoPrueba = '{{ resultadoPrueba.resultadoPrueba }}';
+                        }
+                    {% endfor %}
+
+            var proteccion = '';
+            if (valor > 10) {
+                proteccion = ' protegido';
+            } else {
+                proteccion = ' no protegido';
+            }
+
+            $('#esquemasPrueba tbody').append('<tr data-id="' + J + '"><td>' + nombrePrueba + '</td><td>' + valor + '</td><td>' + nombreResultadoPrueba + proteccion + '</td><td>' + fechaPrueba + '</td><td>' +
+                    '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                    '</td></tr>');
+            hijoPruebas.push({
+                prueba: prueba,
+                resultado: resultado,
+                valor: valor,
+                fechaPrueba: fechaPrueba,
+            });
+            J++;
+
+            if (valor > 10) {
+                $('#addFechaAlta').prop("disabled", false);
+            }
+
+            $("#addPrueba").val('');
+            $("#addResultado").val('');
+            $('#mostrarValor').css("display", "none");
+            $("#addValor").val('');
+            $("#addFechaPrueba").val('');
+
+        }
+    });
+    //funcion que elimina la prueba del arreglo y de la tabla de adicionar
+    $('#esquemasPrueba tbody').on('click', '.borrar', function () {
+        var row = $(this).parents('tr');
+        id = row.data('id');
+        row.fadeOut();
+        delete hijoPruebas[id];
+    });
+
+
+
+    //--------Eliminar el hijo------------//
+    $('#dataHijo tbody').on('click', '.delete', function () {
+
+        var row = $(this).parents('tr');
+
+        var mat_datos = {idHijo: row.data('id')};
+
+        alertify.confirm('Basic: false').set('message', 'Seguro que desea eliminar el hijo seleccionado').set('onok', function () {
+
+            $(".preload").removeClass('hidden');
+
+            $.ajax({
+            type: "POST",
+            dataType: "html",
+            url: '{{ path("deleteHijo") }}',
+            data: mat_datos
+            }).done(function (data) {
+                $(".preload").addClass('hidden');
+                if (data == 'ok') {
+
+                    alertify.alert('<strong>El hijo ha sido eliminado correctamente</strong>')
+                    .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                    .set('label', 'Aceptar')
+                    .set('onok', function () {
+
+                        row.fadeOut();
+                    });
+                } else {
+                    alertify.alert('<strong>' + data + '</strong>')
+                    .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                    .set('label', 'Aceptar')
+                }
+            });
+        });
+    });

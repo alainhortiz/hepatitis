@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/DataTables-1.10.10/media/css/jquery.dataTables.css') }}"/>
+{% endblock %}
+
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    <div style="margin-top: 20px">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="top-datatable">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="no-margin">
+                                    <h2 class="no-padding" style="color: #999">{{ titulo }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row"
+                 style="background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 2px solid #434242;">
+                <div class="col-md-12">
+                    <table id="dataPaciente" class="display" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Provincia</th>
+                            <th>Municipio</th>
+                            <th>Nombre</th>
+                            <th>Primer Apellido</th>
+                            <th>Segundo Apellido</th>
+                            <th>Carnet Identidad</th>
+                            <th>Fecha Diagnóstico</th>
+                            <th>Etiología</th>
+                            <th>Tipo Hepatitis</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>
+                                <div class="input-group">
+                                <span class="input-group-addon ">
+                                    <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                </span>
+                                    <input id="buscador_provincia" type="text" class="form-control" name="buscador_provincia" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                <span class="input-group-addon ">
+                                    <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                </span>
+                                    <input id="buscador_municipio" type="text" class="form-control" name="buscador_municipio" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                    <span class="input-group-addon ">
+                                        <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                    </span>
+                                    <input id="buscador_nombre" type="text" class="form-control " name="buscador_nombre" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                    <span class="input-group-addon ">
+                                        <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                    </span>
+                                    <input id="buscador_primerApellido" type="text" class="form-control " name="buscador_primerApellido" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                    <span class="input-group-addon ">
+                                        <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                    </span>
+                                    <input id="buscador_segundoApellido" type="text" class="form-control " name="buscador_segundoApellido" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                    <span class="input-group-addon ">
+                                        <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                    </span>
+                                    <input id="carnetIdentidad" type="text" class="form-control " name="buscador_carnetIdentidad" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                    <span class="input-group-addon ">
+                                        <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                    </span>
+                                    <input id="buscador_fechaNotificacion" type="text" class="form-control " name="buscador_fechaNotificacion" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                    <span class="input-group-addon ">
+                                        <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                    </span>
+                                    <input id="buscador_etiologia" type="text" class="form-control " name="buscador_etiologia" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th>
+                                <div class="input-group">
+                                    <span class="input-group-addon ">
+                                        <i class="glyphicon glyphicon-search" style="font-size: 15px"></i>
+                                    </span>
+                                    <input id="buscador_tipoHepatitis" type="text" class="form-control " name="buscador_tipoHepatitis" placeholder="Buscar "  />
+                                </div>
+                            </th>
+                            <th></th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/DataTables-1.10.10/media/js/jquery.dataTables.js') }}"></script>
+    <script>
+        $(document).ready(function()
+        {
+            function verificarusuario(){
+                {% if not (is_granted("ROLE_EDITOR_ESTADISTICA") or is_granted("ROLE_SUPERUSUARIO")) %}
+                    window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+            verificarusuario();
+
+            var rutaAjax = '{{ origen~'Ajax' }}';
+            var columnDefs = [];
+
+            {% import 'Generales/columnDefDataPaciente.html.twig' as definicion %}
+            {{ definicion.definir() }}
+            {% import 'Generales/configDataTableAjax.html.twig' as table %}
+            {{ table.configurar() }}
+
+            $('#dataPaciente tbody').on('click', '.delete', function () {
+
+                var row = $(this).parents('tr');
+
+                var mat_datos = {idPaciente: this.id};
+
+                alertify.confirm('Basic: false').set('message', 'Seguro que desea eliminar el paciente seleccionado ').set('onok', function () {
+
+                    $(".preload").removeClass('hidden');
+
+                    $.ajax({
+                        type: "POST",
+                        dataType: "html",
+                        url: '{{ path("deletePaciente") }}',
+                        data: mat_datos
+                    }).done(function (data) {
+                        $(".preload").addClass('hidden');
+                        if (data == 'ok') {
+
+                            alertify.alert('<strong>El paciente ha sido eliminado correctamente</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                                .set('label', 'Aceptar')
+                                .set('onok', function () {
+
+                                    row.fadeOut();
+                                });
+                        } else {
+                            alertify.alert('<strong>' + data + '</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                                .set('label', 'Aceptar')
+                        }
+                    });
+                });
+            });
+
+
+        });
+    </script>
+{% endblock %}

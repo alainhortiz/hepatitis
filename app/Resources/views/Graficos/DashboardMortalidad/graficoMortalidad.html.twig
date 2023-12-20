@@ -1,0 +1,420 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/stylesheet/Graficos/GraficosStyle.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+
+    {# Graficos #}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <div class="panel-title"><strong>Seleccione el año</strong></div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-md-9 col-6"  class="text-center">
+                            <input type="number" min="1990" value="{{ year }}"  class="form-control"
+                                   id="year"
+                                   name="year">
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <button class="btn btn-primary btn-icon-only rounded-circle"
+                                    type="button" id="btnBuscar"
+                                    name="btnBuscar" data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Buscar por el año">
+                                                                <span class="btn-inner--icon"><i
+                                                                            class="fa fa-search"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="content-box-large">
+                    <div class="panel-body">
+                        <div style="height: 70px;" class="text-center">
+                            <i id="sexoFemenino" style="color: #0c199c;cursor: pointer" class="fa fa-female fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="content-box-large">
+                    <div class="panel-body">
+                        <div style="height: 70px;" class="text-center">
+                            <i id="sexoMasculino" style="color: #0c199c;cursor: pointer" class="fa fa-male fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <strong><div class="panel-title" id="nameTasaB">Mortalidad por hepatitis B del año {{ year }}</div></strong>
+                        <div class="panel-options">
+                            <a href="#" class="reload hidden" id="btnAtrasTasaB" data-placement="top" data-original-title="Regresar">
+                                <i class="fa fa-arrow-circle-left fa-2x"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="tasaB" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <strong><div class="panel-title" id="nameTasaC">Mortalidad por hepatitis C del año {{ year }}</div></strong>
+                    </div>
+                    <div class="panel-options">
+                    </div>
+                    <div class="panel-body">
+                        <div id="tasaC" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/highcharts.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/exporting.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/export-data.js') }}"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            (function () {
+                {% if not (is_granted("ROLE_VISUALIZADOR") or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            })();
+
+//---------declaraciones--------//
+            var tasaMortalidadB = [];
+            var tasaMortalidadC = [];
+            var n;
+
+            function Inicio() {
+                tasaMortalidadB = [];
+                //Cargar datos pacientes  Hepatitis B
+                {% for graficoTotal in mortalidadB %}
+                tasaMortalidadB.push({
+                    name: '{{ graficoTotal['causa'] }}',
+                    y: parseFloat('{{ graficoTotal['cantidad'] }}')
+                });
+                {% endfor %}
+
+                tasaMortalidadC = [];
+                //Cargar datos pacientes Hepatitis C
+                {% for graficoTotal in mortalidadC %}
+                tasaMortalidadC.push({
+                    name: '{{ graficoTotal['causa'] }}',
+                    y: parseFloat('{{ graficoTotal['cantidad'] }}')
+                });
+                {% endfor %}
+
+                graficoTasaMortalidadB();
+                graficoTasaMortalidadC();
+            }
+
+            Inicio();
+
+            $('#btnAtrasTasaB').on("click", function () {
+                $('#btnAtrasTasaB').addClass('hidden');
+                $('#nameTasaB').text('Mortalidad por hepatitis B del año ' + $("#year").val());
+                $('#nameTasaC').text('Mortalidad por hepatitis C del año ' + $("#year").val());
+                yearBuscar();
+            });
+
+            $('#sexoFemenino').on("click", function () {
+                var sex = 'Femenino';
+                Sexo(sex);
+            });
+
+            $('#sexoMasculino').on("click", function () {
+                var sex = 'Masculino';
+                Sexo(sex);
+            });
+
+            function Sexo(sex) {
+                //mostrar si existe el grafico mensual
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    year: $("#year").val(),
+                    sexo: sex
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoMortalidadSexo") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var mortalidadSexoB = obj['mortalidadB'];
+                    var mortalidadSexoC = obj['mortalidadC'];
+
+                    tasaMortalidadB = [];
+                    for (n = 0; n < mortalidadSexoB.length; n++) {
+                        tasaMortalidadB.push({
+                            name: mortalidadSexoB[n]['causa'],
+                            y: parseFloat(mortalidadSexoB[n]['cantidad'])
+                        });
+                    }
+
+                    tasaMortalidadC = [];
+                    for (n = 0; n < mortalidadSexoC.length; n++) {
+                        tasaMortalidadC.push({
+                            name: mortalidadSexoC[n]['causa'],
+                            y: parseFloat(mortalidadSexoC[n]['cantidad'])
+                        });
+                    }
+
+                    $('#nameTasaB').text('Mortalidad por hepatitis B del año ' + $("#year").val() + ' en el sexo ' + sex);
+                    $('#nameTasaC').text('Mortalidad por hepatitis C del año ' + $("#year").val() + ' en el sexo ' + sex);
+                    $('#btnAtrasTasaB').removeClass('hidden');
+                    graficoTasaMortalidadB();
+                    graficoTasaMortalidadC();
+
+                });
+            }
+
+            $('#btnBuscar').on("click", function () {
+                yearBuscar();
+            });
+
+            function yearBuscar() {
+                if($("#year").val().trim() === ''){
+                    alertify.alert('<strong>Debe seleccionar el año.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    year: $("#year").val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoMortalidadYear") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var mortalidadYearB = obj['mortalidadB'];
+                    var mortalidadYearC = obj['mortalidadC'];
+
+                    tasaMortalidadB = [];
+                    for (n = 0; n < mortalidadYearB.length; n++) {
+                        tasaMortalidadB.push({
+                            name: mortalidadYearB[n]['causa'],
+                            y: parseFloat(mortalidadYearB[n]['cantidad'])
+                        });
+                    }
+
+                    tasaMortalidadC = [];
+                    for (n = 0; n < mortalidadYearC.length; n++) {
+                        tasaMortalidadC.push({
+                            name: mortalidadYearC[n]['causa'],
+                            y: parseFloat(mortalidadYearC[n]['cantidad'])
+                        });
+                    }
+
+                    $('#nameTasaB').text('Mortalidad por hepatitis B del año ' + $("#year").val());
+                    $('#nameTasaC').text('Mortalidad por hepatitis C del año ' + $("#year").val());
+                    $('#btnAtrasTasaB').removeClass('hidden');
+                    graficoTasaMortalidadB();
+                    graficoTasaMortalidadC();
+
+                });
+
+            }
+
+            //Grafico tasa mortalidad Hepatitis B
+            function graficoTasaMortalidadB() {
+                Highcharts.chart('tasaB', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    scrollbar: {
+                        enabled: false,
+                        liveRedraw: true,
+                        step: 1
+                    },
+                    xAxis: {
+                        type: 'category',
+                        useHTML: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Pacientes',
+                            useHTML: true
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            getExtremesFromAll: true,
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return Highcharts.numberFormat(this.y, 2, ',', '.');
+                                }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>' + ' pacientes ' + '<b>{point.y:,.2f}</b>'
+                    },
+
+                    "series": [
+                        {
+                            "name": "Mortalidad",
+                            "colorByPoint": true,
+                            "data": tasaMortalidadB
+                        }
+                    ],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 800
+                            },
+                            chartOptions: {
+                                scrollbar: {
+                                    enabled: true
+                                },
+                                xAxis: {
+                                    min: 0,
+                                    max: 1,
+                                    useHTML: true
+                                }
+                            }
+                        }]
+                    }
+                });
+            }
+
+            //Grafico tasa mortalidad Hepatitis C
+            function graficoTasaMortalidadC() {
+                Highcharts.chart('tasaC', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    scrollbar: {
+                        enabled: false,
+                        liveRedraw: true,
+                        step: 1
+                    },
+                    xAxis: {
+                        type: 'category',
+                        useHTML: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Pacientes',
+                            useHTML: true
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            getExtremesFromAll: true,
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return Highcharts.numberFormat(this.y, 2, ',', '.');
+                                }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>' + ' pacientes ' + '<b>{point.y:,.2f}</b>'
+                    },
+
+                    "series": [
+                        {
+                            "name": "Mortalidad",
+                            "colorByPoint": true,
+                            "data": tasaMortalidadC
+                        }
+                    ],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 800
+                            },
+                            chartOptions: {
+                                scrollbar: {
+                                    enabled: true
+                                },
+                                xAxis: {
+                                    min: 0,
+                                    max: 1,
+                                    useHTML: true
+                                }
+                            }
+                        }]
+                    }
+                });
+            }
+
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,744 @@
+<div class="modal fade" data-backdrop="static" data-keyboard=false id="addPaciente" name="addPaciente" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog-centered" role="document">
+        <div>
+            <div class="row">
+                <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3 form-box">
+                    <form id="formAddPaciente" role="form" action="" method="post" class="f1">
+
+                        <h3>Adicionar Nuevo Paciente</h3>
+                        <p>Carnet de Identidad: <span id="carnetCambio"></span></p>
+                        <div class="f1-steps">
+                            <div class="f1-progress">
+                                <div class="f1-progress-line" data-now-value="16.66" data-number-of-steps="3"
+                                     style="width: 16.66%;"></div>
+                            </div>
+                            <div class="f1-step active first">
+                                <div class="f1-step-icon"><i style="margin-left: 15px" class="fa fa-user"></i></div>
+                                <p>generales</p>
+                            </div>
+                            <div class="f1-step ">
+                                <div class="f1-step-icon"><i style="margin-left: 14px" class="fa fa-globe"></i></div>
+                                <p>localidad</p>
+                            </div>
+                            <div class="f1-step">
+                                <div class="f1-step-icon"><i style="margin-left: 17px"
+                                                             class="fa fa-thermometer-full"></i></div>
+                                <p>diagnóstico</p>
+                            </div>
+                            <div class="f1-step">
+                                <div class="f1-step-icon"><i style="margin-left: 13px" class="fa fa-flask"></i></div>
+                                <p>enfermedades</p>
+                            </div>
+                            <div class="f1-step">
+                                <div class="f1-step-icon"><i style="margin-left: 13px"
+                                                             class="fa fa-thermometer-full"></i></div>
+                                <p>laboratorio</p>
+                            </div>
+                            <div class="f1-step">
+                                <div class="f1-step-icon"><i style="margin-left: 16px" class="fa fa-tint"></i></div>
+                                <p>tratamientos</p>
+                            </div>
+                        </div>
+
+                        <fieldset class="firstField">
+                            <h4>Generales del Paciente:</h4>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addNombre">Nombre</label>
+                                        <input type="text" name="addNombre" placeholder="Teclee el nombre..."
+                                               class="f1-first-name form-control" id="addNombre">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addPrimerApellido">Primer Apellido</label>
+                                        <input type="text" name="addPrimerApellido" placeholder="Teclee el primer apellido..."
+                                               class="f1-last-name form-control" id="addPrimerApellido">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addSegundoApellido">Segundo Apellido</label>
+                                        <input type="text" name="addSegundoApellido" placeholder="Teclee el segundo apellido..."
+                                               class="f1-last-name form-control" id="addSegundoApellido">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addEdad">Edad</label>
+                                        <input type="number" min="1" max="120" name="addEdad" placeholder="Teclee la edad..."
+                                               class="f1-last-name form-control input-number" id="addEdad">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addSexo">Sexo</label>
+                                        <select class="f1-last-name form-control" id="addSexo" name="addSexo">
+                                            <option value="">Seleccione el sexo...</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addColorPiel">Color de la Piel</label>
+                                        <select class="f1-last-name form-control" id="addColorPiel" name="addColorPiel">
+                                            <option value="">Seleccione el color de la piel...</option>
+                                            {% for color in  coloresPiel %}
+                                                <option value="{{ color.id }}">{{ color.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <section class="hidden" style="border: solid 2px darkgray ; padding: 10px ; margin-bottom: 15px" id="orientacionesSexuales">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        <h6 style="padding: 5px">Orientaciones Sexuales:</h6>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3  ambos">
+                                        <div class="form-group">
+                                            <label for="PPST">PPST</label>
+                                            <input class="orientacionSexual" type="checkbox" id="PPST" name="PPST">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3  masculino">
+                                        <div class="form-group">
+                                            <label for="HSH">HSH</label>
+                                            <input class="orientacionSexual" type="checkbox" id="HSH" name="HSH">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3  masculino">
+                                        <div class="form-group">
+                                            <label for="Trans">Trans</label>
+                                            <input class="orientacionSexual" type="checkbox" id="Trans" name="Trans">
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addEstadoCivil">Estado Civil</label>
+                                        <select class="f1-last-name form-control" id="addEstadoCivil" name="addEstadoCivil">
+                                            <option value="">Seleccione el estado civil...</option>
+                                            {% for estadoCivil in  estadosCiviles %}
+                                                <option value="{{ estadoCivil.id }}">{{ estadoCivil.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addNivelEscolaridad">Nivel de Escolaridad</label>
+                                        <select class="f1-last-name form-control" id="addNivelEscolaridad"
+                                                name="addNivelEscolaridad">
+                                            <option value="">Seleccione el nivel de escolaridad...</option>
+                                            {% for nivelEscolaridad in  nivelesEscolaridad %}
+                                                <option value="{{ nivelEscolaridad.id }}">{{ nivelEscolaridad.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addOcupacion">Ocupación</label>
+                                        <select class="f1-last-name form-control" style="width: 100%" id="addOcupacion"
+                                                name="addOcupacion">
+                                            <option value="">Seleccione la ocupación...</option>
+                                            {% for ocupacion in  ocupaciones %}
+                                                <option value="{{ ocupacion.id }}">{{ ocupacion.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 gestante">
+                                    <div class="form-group">
+                                        <label for="addGestante">Gestante</label>
+                                        <input type="checkbox" id="addGestante" name="addGestante ">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4 siGestante hidden">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addFechaEdadGestacional">Fecha de registro de la
+                                            edad gestacional</label>
+                                        <input type="text" name="addFechaEdadGestacional"
+                                               placeholder="Seleccione la fecha de registro de la edad gestacional..."
+                                               class="f1-last-name form-control gestante opcional"
+                                               id="addFechaEdadGestacional">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4 siGestante hidden">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addSemanasGestacional">Semanas</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control gestante opcional"
+                                                    style="width: 100%" id="addSemanasGestacional"
+                                                    name="addSemanasGestacional">
+                                                <option value="">Seleccione la cantidad de semanas...</option>
+                                                {% for semana in  range(1,42) %}
+                                                    <option value="{{ semana }}">{{ semana~ ' semanas' }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4 siGestante hidden">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addDiasGestacional">Dias</label>
+                                        <input type="number" min="1" max="120" name="addDiasGestacional"
+                                               placeholder="Teclee la cantidad de días..."
+                                               class="f1-last-name form-control input-number gestante opcional"
+                                               id="addDiasGestacional">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="f1-buttons">
+                                <button type="button" class="btn cancelar" id="btnCancelar">Cancelar</button>
+                                <button type="button" class="btn btn-next" id="btnNexTGenerales">Siguiente</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <h4>Localidad del paciente:</h4>
+                            <div class="form-group">
+                                <label class="sr-only" for="addDireccionCarnet">Dirección del Carnet</label>
+                                <input type="text" name="addDireccionCarnet"
+                                       placeholder="Teclee la dirección del carnet..." class="f1-last-name form-control"
+                                       id="addDireccionCarnet">
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addProvinciaCarnet">Provincia del Carnet</label>
+                                        <select class="f1-last-name form-control" id="addProvinciaCarnet"
+                                                name="addProvinciaCarnet">
+                                            <option value="">Seleccione la provincia del carnet...</option>
+                                            {% for provincia in  provincias %}
+                                                <option value="{{ provincia.id }}">{{ provincia.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addMunicipioCarnet">Municipio del Carnet</label>
+                                        <select disabled class="f1-last-name form-control" id="addMunicipioCarnet"
+                                                name="addMunicipioCarnet">
+                                            <option id="inicio" value="">Seleccione el municipio del carnet...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="sr-only" for="addDireccionResidencia">Dirección de Residencia</label>
+                                <input type="text" name="addDireccionResidencia"
+                                       placeholder="Teclee la dirección de residencia..."
+                                       class="f1-last-name form-control" id="addDireccionResidencia">
+                            </div>
+                            {% if(app.user.getNivelAcceso().nivel == 'nacional') %}
+                                <div class="form-group">
+                                    <label class="sr-only" for="addProvinciaResidencia">Provincia de Residencia</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" id="addProvinciaResidencia"
+                                                name="addProvinciaResidencia">
+                                            <option value="">Seleccione la provincia de residencia...</option>
+                                            {% for provincia in  provincias %}
+                                                <option value="{{ provincia.id }}">{{ provincia.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="addMunicipioResidencia">Municipio de Residencia</label>
+                                    <div class="form-group">
+                                        <select disabled class="f1-last-name form-control" id="addMunicipioResidencia"
+                                                name="addMunicipioResidencia">
+                                            <option id="inicio2" value="">Seleccione el municipio de residencia...
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="addUnidadAtencion">Unidad de Atención</label>
+                                    <div class="form-group">
+                                        <select disabled class="f1-last-name form-control" id="addUnidadAtencion"
+                                                name="addUnidadAtencion">
+                                            <option id="inicio3" value="">Seleccione la unidad de atención...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            {% elseif(app.user.getNivelAcceso().nivel == 'provincial') %}
+                                <div class="form-group">
+                                    <label class="sr-only" for="addProvinciaResidencia">Provincia de Residencia</label>
+                                    <div class="form-group">
+                                        <div>
+                                            <strong>{{ app.user.getUnidad().getMunicipio().getProvincia().nombre }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="addMunicipioResidencia">Municipio de Residencia</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" id="addMunicipioResidencia"
+                                                name="addMunicipioResidencia">
+                                            <option value="">Seleccione el municipio de residencia...</option>
+                                            {% for municipio in  municipios %}
+                                                {% if municipio.getProvincia().codigo == app.user.getUnidad().getMunicipio().getProvincia().codigo %}
+                                                    <option value="{{ municipio.id }}">{{ municipio.nombre }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="addUnidadAtencion">Unidad de Atención</label>
+                                    <div class="form-group">
+                                        <select disabled class="f1-last-name form-control" id="addUnidadAtencion"
+                                                name="addUnidadAtencion">
+                                            <option id="inicio3" value="">Seleccione la unidad de atención...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="form-group">
+                                    <label class="sr-only" for="addProvinciaResidencia">Provincia de Residencia</label>
+                                    <div class="form-group">
+                                        <div>
+                                            <strong>{{ app.user.getUnidad().getMunicipio().getProvincia().nombre }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="addMunicipioResidencia">Municipio de Residencia</label>
+                                    <div class="form-group">
+                                        <div>
+                                            <strong>{{ app.user.getUnidad().getMunicipio().nombre }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="sr-only" for="addUnidadAtencion">Unidad de Atención</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" id="addUnidadAtencion"
+                                                name="addUnidadAtencion">
+                                            <option id="inicio3" value="">Seleccione la unidad de atención...</option>
+                                            {% for unidad in  unidades %}
+                                                {% if unidad.getMunicipio().codigo == app.user.getUnidad().getMunicipio().codigo %}
+                                                    <option value="{{ unidad.id }}">{{ unidad.nombre }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="f1-buttons">
+                                <button type="button" class="btn cancelar" id="btnCancelar">Cancelar</button>
+                                <button type="button" class="btn btn-previous">Anterior</button>
+                                <button type="button" class="btn btn-next">Siguiente</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <h4>Diagnóstico del Paciente:</h4>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addFechaDiagnostico">Fecha de diagnóstico</label>
+                                        <input type="text" name="addFechaDiagnostico"
+                                               placeholder="Seleccione la fecha de diagnóstico..."
+                                               class="f1-last-name form-control" id="addFechaDiagnostico">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addEtiologia">Etiologia</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" id="addEtiologia" name="addEtiologia">
+                                                <option value="">Seleccione la Etiología...</option>
+                                                {% for etiologia in  etiologias %}
+                                                    <option value="{{ etiologia.id }}">{{ etiologia.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addTipoHepatitis">Tipo de Hepatitis</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" style="width: 100%" id="addTipoHepatitis"
+                                                    name="addTipoHepatitis">
+                                                <option value="">Seleccione el tipo de hepatitis...</option>
+                                                {% for tipoHepatitis in  tiposHepatitis %}
+                                                    <option value="{{ tipoHepatitis.id }}">{{ tipoHepatitis.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="estadio" class="form-group hidden">
+                                <label class="sr-only" for="addEstadioHepatitis">Estadío de Hepatitis</label>
+                                <div class="form-group">
+                                    <select class="f1-last-name form-control estadioss opcional"
+                                            id="addEstadioHepatitis"
+                                            name="addEstadioHepatitis">
+                                        <option value="">Seleccione el estadío de hepatitis...</option>
+                                        {% for estadioHepatitis in  estadiosHepatitis %}
+                                            <option value="{{ estadioHepatitis.id }}">{{ estadioHepatitis.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="sr-only" for="addGrupoVulnerable">Grupo Vulnerable</label>
+                                <div class="form-group">
+                                    <select class="f1-last-name form-control" style="width: 100%"
+                                            id="addGrupoVulnerable" name="addGrupoVulnerable">
+                                        <option value="">Seleccione el grupo vulnerable...</option>
+                                        {% for grupoVulnerable in  gruposVulnerables %}
+                                            <option value="{{ grupoVulnerable.id }}">{{ grupoVulnerable.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addFormaInfeccion">Forma de Infección</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" id="addFormaInfeccion"
+                                                    name="addFormaInfeccion">
+                                                <option value="">Seleccione la forma de infección...</option>
+                                                {% for formaInfeccion in  formasInfeccion %}
+                                                    <option value="{{ formaInfeccion.id }}">{{ formaInfeccion.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label for="addTransfusion">Transfusión</label>
+                                        <input type="checkbox" id="addTransfusion" name="addTransfusion">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addFuentePesquisa">Fuente de Pesquisa</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" style="width: 100%" id="addFuentePesquisa"
+                                                    name="addFuentePesquisa">
+                                                <option value="">Seleccione la fuente de pesquisa...</option>
+                                                {% for fuentePesquisa in  fuentesPesquisa %}
+                                                    <option value="{{ fuentePesquisa.id }}">{{ fuentePesquisa.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="motivo" class="form-group hidden">
+                                <label class="sr-only" for="addMotivoFuentePesquisa">Motivo Fuente Pesquisa</label>
+                                <div class="form-group">
+                                    <select class="f1-last-name form-control pesquisa opcional" style="width: 100%"
+                                            id="addMotivoFuentePesquisa" name="addMotivoFuentePesquisa">
+                                        <option value="">Seleccione el motivo de la fuente de pesquisa...</option>
+                                        {% for motivoFuentePesquisa in  motivosFuentePesquisa %}
+                                            <option value="{{ motivoFuentePesquisa.id }}">{{ motivoFuentePesquisa.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <h6>EVOLUCIONES CLINICAS</h6>
+                                <div class="row hidden" id="rowCausaFallecimiento" style="margin-top: 15px">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <div class="form-group" style="background-color: #e0e0e0 ; padding: 10px ;border-radius: 4px">
+                                            <h6 id="hCausaFallecimiento">Causa del Fallecimiento: </h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 10px" id="rowAddEvolucionClinica">
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label class="sr-only" for="addEvolucionClinica">Evolución Clínica</label>
+                                            <select class="f1-last-name form-control opcional"  id="addEvolucionClinica"
+                                                    name="addEvolucionClinica">
+                                                <option value="">Seleccione la evolución clínica...</option>
+                                                {% for evolucion in  evolucionesClinicas %}
+                                                    <option value="{{ evolucion.id }}">{{ evolucion.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 hidden" id="divCausaFallecimiento">
+                                        <div class="form-group">
+                                            <label class="sr-only" for="causaFallecimiento">Causa Fallecimiento</label>
+                                            <select class="f1-last-name form-control opcional"  id="causaFallecimiento"
+                                                    name="causaFallecimiento">
+                                                <option value="">Causa del fallecimiento...</option>
+                                                {% for causa in  causasFallecimiento %}
+                                                    <option value="{{ causa.id }}">{{ causa.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        <div class="form-group">
+                                            <label class="sr-only" for="addFechaEvolucionClinica">Fecha</label>
+                                            <input type="text" name="addFechaEvolucionClinica"
+                                                   placeholder="Seleccione la fecha de la evolución clínica..."
+                                                   class="f1-last-name form-control opcional" id="addFechaEvolucionClinica">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        <div class="form-group">
+                                            <button type="button" class="btn" id="agregarBtnEvolucionClinica">Agregar
+                                                Evolución Clínica
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="tablaEvolucionesClinicas" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>Evolución Clínica</th>
+                                            <th>Fecha</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbodyEvolucionesClinicas"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="f1-buttons">
+                                <button type="button" class="btn cancelar" id="btnCancelar">Cancelar</button>
+                                <button type="button" class="btn btn-previous">Anterior</button>
+                                <button type="button" class="btn btn-next">Siguiente</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <h4>Enfermedades del Paciente:</h4>
+                            <div>
+                                <div class="form-group">
+                                    <label class="control-label " for="addAntecedentesPatologicos">Seleccione los
+                                        Antecedentes Patológicos:</label>
+                                    <select multiple="multiple" id="addAntecedentesPatologicos"
+                                            name="addAntecentesPatologicos[]" class="form-control">
+
+                                        {% for antecedente in antecedentesPatologicos %}
+
+                                            <option value={{ antecedente.id }}>{{ antecedente.nombre }}</option>
+
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <h6>COINFECCIONES</h6>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <div class="form-group">
+                                            <label class="sr-only" for="addCoinfeccion">Coinfección</label>
+                                            <select class="f1-last-name form-control opcional"  id="addCoinfeccion"
+                                                    name="addCoinfeccion">
+                                                <option value="">Seleccione la coinfección...</option>
+                                                {% for coinfeccion in  coinfecciones %}
+                                                    <option value="{{ coinfeccion.id }}">{{ coinfeccion.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <div class="form-group">
+                                            <label class="sr-only" for="addFechaCoinfeccion">Fecha</label>
+                                            <input type="text" name="addFechaCoinfeccion"
+                                                   placeholder="Seleccione la fecha de la coinfección..."
+                                                   class="f1-last-name form-control opcional" id="addFechaCoinfeccion">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <button type="button" class="btn" id="agregarBtnCoinfeccion">Agregar
+                                                Coinfección
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="tablaCoinfeccionesPaciente" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>Coinfección</th>
+                                            <th>Fecha</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbodyCoinfecciones"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="f1-buttons">
+                                <button type="button" class="btn cancelar" id="btnCancelar">Cancelar</button>
+                                <button type="button" class="btn btn-previous">Anterior</button>
+                                <button type="button" class="btn btn-next">Siguiente</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <h4>Pruebas del Paciente:</h4>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addPrueba">Prueba</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control prueba opcional" id="addPrueba" name="addPrueba">
+                                                <option id="inicio5" value="">Seleccione la prueba...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <div id="mostrarValor" style="display: none">
+                                            <input type="text" class="form-control input-number valor opcional"
+                                                   valor opcional  id="addValor" name="addValor" placeholder="Teclee el valor">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label class="sr-only" for="addResultado">Resultado</label>
+                                    <div class="form-group">
+                                        <select disabled class="f1-last-name form-control resultado opcional" id="addResultado" name="addResultado">
+                                            <option id="inicio4" value="">Seleccione el resultado...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addFechaPrueba">Fecha realizada</label>
+                                        <div class="form-group">
+                                            <input type="text" name="addFechaPrueba"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control fechaPrueba opcional"
+                                                   id="addFechaPrueba">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn" id="agregarBtnPruebas">Agregar
+                                        Prueba
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table id="esquemasPrueba" class="table table-bordered"
+                                       style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                    <thead>
+                                    <tr style="color: #2bc7c7">
+                                        <th>Prueba</th>
+                                        <th>Valor</th>
+                                        <th>Resultado</th>
+                                        <th>Fecha</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tbodyPrueba"></tbody>
+                                </table>
+                            </div>
+                            <div class="f1-buttons">
+                                <button type="button" class="btn cancelar" id="btnCancelar">Cancelar</button>
+                                <button type="button" class="btn btn-previous">Anterior</button>
+                                <button type="button" class="btn btn-next">Siguiente</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <h4>Esquemas de Medicamentos:</h4>
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label class="control-label " for="addMedicamentos">Seleccione los
+                                            Medicamentos:</label>
+                                        <select multiple="multiple" id="addMedicamentos" name="addMedicamentos[]"
+                                                class="form-control">
+
+                                            {% for medicamento in medicamentos %}
+
+                                                <option value={{ medicamento.id }}>{{ medicamento.nombre }}</option>
+
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="padding-top: 10px">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="addFechaInicioTratamiento">Fecha de Inicio del
+                                            Tratamiento</label>
+                                        <input type="text" name="addFechaInicioTratamiento"
+                                               placeholder="Seleccione el inicio..."
+                                               class="f1-last-name form-control" id="addFechaInicioTratamiento">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div id="final" class="form-group fechaFinal hidden">
+                                        <label class="sr-only" for="addFechaFinalTratamiento">Fecha Final del
+                                            Tratamiento</label>
+                                        <input type="text" name="addFechaFinalTratamiento"
+                                               placeholder="Seleccione el final..."
+                                               class="f1-last-name form-control" id="addFechaFinalTratamiento">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn" id="agregarBtnEsquemaMedicamento">Agregar
+                                        Esquema
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table id="esquemasMedicamento" class="table table-bordered"
+                                       style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                    <thead>
+                                    <tr style="color: #2bc7c7">
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Final</th>
+                                        <th>Medicamentos</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tbody"></tbody>
+                                </table>
+                            </div>
+                            <div class="f1-buttons">
+                                <button type="button" class="btn cancelar" id="btnCancelar">Cancelar</button>
+                                <button type="button" class="btn btn-previous">Anterior</button>
+                                <button type="button" class="btn btn-submit" id="btnGuardarPaciente">Guardar</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

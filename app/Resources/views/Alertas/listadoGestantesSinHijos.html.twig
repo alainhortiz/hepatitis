@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/DataTables-1.10.10/media/css/jquery.dataTables.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    <div>
+        <div class="top-datatable">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-12">
+                        <div class="no-margin">
+                            <h2 class="no-padding" style="color: #999">Gestantes con mas de 42 semanas sin hijos registrados</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row" style="background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 2px solid #434242;">
+                <div class="col-md-12">
+                    <table id="dataGestante" class="display" cellspacing="0" width="100%" >
+                        <thead>
+                        <tr>
+                            <th>Nombres y Apellidos</th>
+                            <th>Carnet Indentidad</th>
+                            <th>Etiología</th>
+                            <th>Tipo Hepatitis</th>
+                            <th>Fecha Diagnóstico</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for gestante in gestantes %}
+                            <tr data-id ="{{ gestante.id }}">
+                                <td>{{ gestante.paciente.nombreCompleto() }}</td>
+                                <td class="text-center">{{ gestante.paciente.carnetIdentidad }}</td>
+                                <td class="text-center">{{ gestante.paciente.etiologia.nombre }}</td>
+                                <td class="text-center">{{ gestante.paciente.getTipoHepatitis().nombre }}</td>
+                                <td class="text-center">{{ gestante.paciente.fechaDiagnostico|date('Y-m-d') }}</td>
+                                <td>
+                                    <a href="{{ path('editPaciente' , {idPaciente:gestante.paciente.id}) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i> Editar</a>
+                                    <a href="{{ path('gestionarHijo' , {idGestante:gestante.id}) }}" class="btn btn-xs btn-info"><span class="badge">{{ gestante.gestanteHijos|length }}</span><i class="fa fa-check"></i> Hijos</a>
+                                    <a href="#" class="btn btn-danger btn-xs delete"><i class="fa fa-trash-o "></i> Borrar</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/DataTables-1.10.10/media/js/jquery.dataTables.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            function verificarusuario(){
+                {% if not (is_granted("ROLE_ADMINISTRADOR") or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+            verificarusuario();
+            $('#dataGestante').DataTable();
+
+        });
+    </script>
+{% endblock %}

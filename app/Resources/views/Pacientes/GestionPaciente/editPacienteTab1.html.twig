@@ -1,0 +1,156 @@
+{% if paciente.gestante == 1 %}
+    $('#editGestante').prop('checked', true);
+    $('#editGestante').button('refresh');
+
+{% else %}
+    $('.gestante').addClass('hidden');
+    $('.siGestante').addClass('hidden');
+{% endif %}
+
+
+
+{% for orientacion in paciente.orientacionesSexuales %}
+    $('#{{ orientacion.sigla }}').prop('checked', true);
+    $('#{{ orientacion.sigla }}').button('refresh');
+{% endfor %}
+
+$('.orientacionSexual').on("click", function(){
+
+    var marcados = 0;
+    var incluidos = 0;
+    $('.orientacionSexual').map(function() {
+
+        if(this.checked){
+            marcados++;
+            {% for orientacion in paciente.orientacionesSexuales %}
+                if(this.id == '{{ orientacion.sigla }}'){ incluidos++; }
+            {% endfor %}
+        }
+    });
+    if(marcados != incluidos || marcados != '{{ paciente.orientacionesSexuales|length }}'){ $('#btnGuardarGenerales').prop("disabled",false); }
+    else { $('#btnGuardarGenerales').prop("disabled",true); }
+
+});
+
+
+//Donde se realiza la llamada al update de genrerales
+$('#btnGuardarGenerales').click(function () {
+    if ($("#carnetIdentidad").val().trim() == '') {
+        alertify.alert('<strong>El campo carnet de identidad es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    if ($("#editNombre").val().trim() == '') {
+        alertify.alert('<strong>El campo nombre es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    if ($("#editPrimerApellido").val().trim() == '') {
+        alertify.alert('<strong>El campo primer apellido es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    if ($("#editSegundoApellido").val().trim() == '') {
+        alertify.alert('<strong>El campo segundo apellido es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    if ($("#editEdad").val().trim() == '') {
+        alertify.alert('<strong>El campo edad es obligatorio, no puede quedar en blanco.</strong>')
+        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+        .set('label', 'Aceptar');
+        return false;
+    }
+
+    var gestante = 0;
+    if ($('#editGestante').prop('checked')) {
+        gestante = 1;
+    }
+
+    if(gestante == 1){
+        if ($("#editFechaEdadGestacional").val() == '') {
+            alertify.alert('<strong>Debe seleccionar la fecha en que se registró la edad gestacional.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+            return false;
+        }
+        if ($("#editSemanasGestacional").val() == '0') {
+            alertify.alert('<strong>Debe seleccionar la cantidad de semanas.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+            return false;
+        }
+        if ($("#editDiasGestacional").val().trim() == '') {
+            alertify.alert('<strong>El campo días es obligatorio, no puede quedar en blanco.</strong>')
+            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+            .set('label', 'Aceptar');
+            return false;
+        }
+    }
+    var orientacionesSexuales = [];
+    $('.orientacionSexual').map(function() {
+
+        if(this.checked){
+            orientacionesSexuales.push(this.id);
+        }
+    });
+
+    $(".preload").removeClass('hidden');
+
+    var mat_datos = {
+        idPaciente: {{ paciente.getId() }},
+        carnetIdentidad: $("#carnetIdentidad").val(),
+        nombre: $("#editNombre").val(),
+        primerApellido: $("#editPrimerApellido").val(),
+        segundoApellido: $("#editSegundoApellido").val(),
+        edad: $("#editEdad").val(),
+        sexo: $("#editSexo").val(),
+        colorPiel: $("#editColorPiel").val(),
+        estadoCivil: $("#editEstadoCivil").val(),
+        nivelEscolaridad: $("#editNivelEscolaridad").val(),
+        ocupacion: $("#editOcupacion").val(),
+        gestante: gestante,
+        fechaEdadGestacional: $("#editFechaEdadGestacional").val(),
+        semanaGestacional: $("#editSemanasGestacional").val(),
+        diasGestacional: $("#editDiasGestacional").val(),
+        orientacionesSexuales: orientacionesSexuales,
+    };
+
+    $.ajax({
+        type: "POST",
+        dataType: "html",
+        url: '{{ path("updatePacienteGeneral") }}',
+        data: mat_datos
+        }).done(function (data) {
+
+            $(".preload").addClass('hidden');
+            if (data == 'ok') {
+
+                alertify.alert('<strong>Los datos modificados han sido guardados correctamente</strong>')
+                .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                .set('label', 'Aceptar')
+            } else {
+                alertify.alert('<strong>' + data + '</strong>')
+                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                .set('label', 'Aceptar')
+            }
+        });
+});

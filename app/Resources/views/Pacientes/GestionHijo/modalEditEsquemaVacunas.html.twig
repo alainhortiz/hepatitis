@@ -1,0 +1,62 @@
+<div class="modal fade" data-backdrop="static" data-keyboard=false id="editEsquemaVacunas" name="editEsquemaVacunas" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header mh" style="background-color: #999999; color: whitesmoke;">
+                <span class="glyphicon glyphicon-list-alt" style="font-size: 20px"></span>
+                <h4 class="modal-title" style="display: inline-block; margin-left: 5px">Editar Esquema de Vacunación</h4>
+            </div>
+            <div class="modal-body">
+                <div id="errorEditEsquemaVacunas" class="alert alert-danger hidden"  role="alert">
+                    <div class="container"></div>
+                </div>
+                <form>
+                    <div class="row" >
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label" for="editModalPrimeraDosis">1era Dosis</label>
+                                <input type="text" name="editModalPrimeraDosis"
+                                       placeholder="Seleccione la fecha..."
+                                       class="f1-last-name form-control"
+                                       id="editModalPrimeraDosis">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label" for="editModalSegundaDosis">2da Dosis</label>
+                                <input type="text" name="editModalSegundaDosis"
+                                       placeholder="Seleccione la fecha..."
+                                       class="f1-last-name form-control"
+                                       id="editModalSegundaDosis">
+                            </div>
+                        </div>
+                    </div >
+                    <div class="row" >
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label" for="editModalTerceraDosis">3ra Dosis</label>
+                                <input type="text" name="editModalTerceraDosis"
+                                       placeholder="Seleccione la fecha..."
+                                       class="f1-last-name form-control"
+                                       id="editModalTerceraDosis">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label" for="editModalReactivacion">Reactivación</label>
+                                <input type="text" name="editModalReactivacion"
+                                       placeholder="Seleccione la fecha..."
+                                       class="f1-last-name form-control"
+                                       id="editModalReactivacion">
+                            </div>
+                        </div>
+                    </div >
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-primario" style="background-color: #999999" id="maceptarEditEsquemaVacunas"  value="ACEPTAR" >
+                        <input type="button" class="btn btn-primario"  id="mEditCerrar" value="CERRAR" data-dismiss="modal" style="cursor: default ; background-color: #999999">
+                    </div>
+                </form>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>

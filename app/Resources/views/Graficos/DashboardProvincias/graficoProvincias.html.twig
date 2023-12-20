@@ -1,0 +1,545 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/stylesheet/Graficos/GraficosStyle.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+
+    {# Graficos #}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <strong><div class="panel-title" id="nameProvincia">Comportamiento de los pacientes por provincias</div></strong>
+                        <div class="panel-options">
+                            <a href="#" class="reload hidden" id="btnAtrasProvincia" data-placement="top" data-original-title="Regresar">
+                                <i class="fa fa-arrow-circle-left fa-2x"></i>
+                            </a>
+                            <a href="#" class="hidden" id="MostrarFecha" data-toggle="tooltip" data-placement="bottom"
+                               title="Seleccionar rango de fecha" style="text-decoration: none; color: #141414;">
+                                <i class="fa fa-calendar fa-2x"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="provincias" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <strong><div class="panel-title" id="nameSexo">Pacientes por grupos de edades </div></strong>
+                    </div>
+                    <div class="panel-options">
+                    </div>
+                    <div class="panel-body">
+                        <div id="edades" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="content-box-large">
+                        <div class="panel-heading">
+                            <div class="panel-title"><strong>Hepatitis B </strong></div>
+                        </div>
+                        <div class="panel-body">
+                            <div style="height: 30px;" class="text-center">
+                                <h2 id="totalB" style="color: #0c199c;cursor: pointer"><strong>{{ totalHepatitisB|number_format(0, '.', ',') }}</strong></h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="content-box-large">
+                        <div class="panel-heading">
+                            <div class="panel-title"><strong>Hepatitis C </strong></div>
+                        </div>
+                        <div class="panel-body">
+                            <div style="height: 50px;" class="text-center">
+                                <h2 id="totalC" style="color: #0c199c;cursor: pointer"><strong>{{ totalHepatitisC|number_format(0, '.', ',') }}</strong></h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ include('Graficos/DashboardProvincias/modalFechaProvincias.html.twig') }}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/highcharts.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/drilldown.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/exporting.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/export-data.js') }}"></script>
+    <script src="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.js') }}"></script>
+    <!-- mis js -->
+    <script src="{{ asset('easyadmin/javascript/formatoTipos.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/moment.js') }}"></script>
+    <script>
+
+        $(document).ready(function () {
+
+
+            (function () {
+                {% if not (is_granted("ROLE_VISUALIZADOR") or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            })();
+
+
+            //---------declaraciones--------//
+
+            var hoy = '{{ "now"|date('d-m-Y') }}';
+            $("#fechaInicial , #fechaFinal ").datepicker({
+                firstDay: 1,
+                dateFormat: 'dd-mm-yy',
+                changeMonth: true,
+                changeYear: true,
+                maxDate: hoy
+            });
+
+            $('#MostrarFecha').on('click', function () {
+                $('#RangoFecha').modal('show');
+            });
+
+            $('#btnAtrasProvincia').on("click", function () {
+                $('#btnAtrasProvincia').addClass('hidden');
+                $('#nameProvincia').text('Comportamiento de los pacientes por provincias');
+                $('#nameSexo').text('Pacientes por grupos de edades');
+                Inicio();
+            });
+
+            $('#btnAtrasSexo').on("click", function () {
+                $('#btnAtrasSexo').addClass('hidden');
+                $('#nameProvincia').text('Comportamiento de los pacientes por provincias');
+                $('#nameSexo').text('Pacientes por grupos de edades');
+                Inicio();
+            });
+
+            //Declaraciones
+            var totalPacientesProvincias = [];
+            var edadMenor5 = 0;
+            var edad5y14 = 0;
+            var edad15y19 = 0;
+            var edad20y24 = 0;
+            var edad25y59 = 0;
+            var edad60y65 = 0;
+            var edadMayor65 = 0;
+            var n;
+            var provinciaSeleccionada;
+
+            //Grafico pacientes provincias
+            function graficoTotalPacientes() {
+                Highcharts.chart('provincias', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    scrollbar: {
+                        enabled: false,
+                        liveRedraw: true,
+                        step: 1
+                    },
+                    xAxis: {
+                        type: 'category',
+                        useHTML: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Pacientes',
+                            useHTML: true
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            getExtremesFromAll: true,
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return Highcharts.numberFormat(this.y, 0, ',', '.');
+                                }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>' + ' pacientes ' + '<b>{point.y:,.0f}</b>'
+                    },
+
+                    "series": [
+                        {
+                            "name": "Provincias",
+                            "colorByPoint": true,
+                            "data": totalPacientesProvincias,
+                            events: {
+                                click: function (oEvent) {
+                                    cargarProvincia(oEvent.point.name, oEvent.point.y);
+                                }
+                            }
+                        }
+                    ],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 800
+                            },
+                            chartOptions: {
+                                scrollbar: {
+                                    enabled: true
+                                },
+                                xAxis: {
+                                    min: 0,
+                                    max: 1,
+                                    useHTML: true
+                                }
+                            }
+                        }]
+                    }
+                });
+            }
+
+            //Grafico pacientes por rango de edades
+            function graficoRangoEdades() {
+                Highcharts.chart('edades', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '<span style="color:{point.color}">\u25CF</span> <b> {point.name}</b><br/>' +
+                            'Cantidad de pacientes: <b>{point.y}</b><br/>' +
+                            'que representa el <b>{point.percentage:.1f}%</b>'
+                    },
+                    legend: {
+                        layaout: 'horizontal',
+                        alignColumns: false,
+                        align: 'center',
+                        margin: -10
+                    },
+                    plotOptions: {
+                        pie: {
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:.0f}',
+                            }
+                        }
+                    },
+                    series: [{
+                        minPointSize: 10,
+                        zMin: 0,
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true,
+                        name: 'Rango de edades',
+                        colorByPoint: true,
+                        data: [{
+                            name: '< 5',
+                            y: edadMenor5
+                        }, {
+                            name: '5 y 14',
+                            y: edad5y14
+                        }, {
+                            name: '15 y 19',
+                            y: edad15y19
+                        },{
+                            name: '20 y 24',
+                            y: edad20y24
+                        },{
+                            name: '25 y 59',
+                            y: edad25y59
+                        },{
+                            name: '60 y 65',
+                            y: edad60y65
+                        },{
+                            name: '> 65',
+                            y: edadMayor65
+                        }],
+                        events: {
+                            click: function (oEvent) {
+                                cargarEdad(oEvent.point.name);
+                            }
+                        }
+                    }]
+                });
+            }
+
+            function Inicio() {
+                totalPacientesProvincias = [];
+                //Cargar datos pacientes provincias
+                {% for graficoTotal in graficosPacientesProvincias %}
+                totalPacientesProvincias.push({
+                    name: '{{ graficoTotal['nombre'] }}',
+                    y: parseInt('{{ graficoTotal['cantidad'] }}')
+                });
+                {% endfor %}
+
+                edadMenor5 = parseInt('{{ graficosEdadesMenor5 }}');
+                edad5y14 = parseInt('{{ graficosEdades5y14 }}');
+                edad15y19 = parseInt('{{ graficosEdades15y19 }}');
+                edad20y24 = parseInt('{{ graficosEdades20y24 }}');
+                edad25y59 = parseInt('{{ graficosEdades25y59 }}');
+                edad60y65 = parseInt('{{ graficosEdades60y65 }}');
+                edadMayor65 = parseInt('{{ graficosEdadesMas65 }}');
+                $('#totalB').text({{ totalHepatitisB|number_format(0, '.', ',') }});
+                $('#totalC').text({{ totalHepatitisC|number_format(0, '.', ',') }});
+                graficoTotalPacientes();
+                graficoRangoEdades();
+            }
+
+            Inicio();
+
+            //Boton buscar por rango de fecha
+            $('#maceptar').on("click", function () {
+
+                if (dateDiff($("#fechaInicial").val(), $("#fechaFinal").val()) > 0) {
+                    alertify.alert('<strong>Error: la fecha final no puede ser menor que la fecha inicial.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                $(".preload").removeClass('hidden');
+
+                $('#formFecha').submit();
+
+            });
+
+            //CLICK HEPATITIS B
+            $('#totalB').on("click", function () {
+
+                //mostrar si existe el grafico mensual
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    idEtiologia: 1
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoProvinciasHepatitis") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var pacientesProvinciasEtiologia = obj['pacientesProvinciasEtiologia'];
+                    edadMenor5 = parseInt(obj['rangoEdadEtiologiaMenor5']);
+                    edad5y14 = parseInt(obj['rangoEdadEtiologia5y14']);
+                    edad15y19 = parseInt(obj['rangoEdadEtiologia15y19']);
+                    edad20y24 = parseInt(obj['rangoEdadEtiologia20y24']);
+                    edad25y59 = parseInt(obj['rangoEdadEtiologia25y59']);
+                    edad60y65 = parseInt(obj['rangoEdadEtiologia60y65']);
+                    edadMayor65 = parseInt(obj['rangoEdadEtiologiamayor65']);
+
+
+                    totalPacientesProvincias = [];
+                    for (n = 0; n < pacientesProvinciasEtiologia.length; n++) {
+                        totalPacientesProvincias.push({
+                            name: pacientesProvinciasEtiologia[n]['nombre'],
+                            y: parseFloat(pacientesProvinciasEtiologia[n]['cantidad'])
+                        });
+                    }
+
+                    $('#nameProvincia').text('Comportamiento de los pacientes con hepatitis B por provincias');
+                    $('#nameSexo').text('Pacientes con hepatitis B por grupos de edades');
+                    $('#btnAtrasProvincia').removeClass('hidden');
+                    $('#btnAtrasSexo').removeClass('hidden');
+                    graficoTotalPacientes();
+                    graficoRangoEdades();
+
+                });
+
+            });
+
+            //CLICK HEPATITIS C
+            $('#totalC').on("click", function () {
+
+                //mostrar si existe el grafico mensual
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    idEtiologia: 2
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoProvinciasHepatitis") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var pacientesProvinciasEtiologia = obj['pacientesProvinciasEtiologia'];
+                    edadMenor5 = parseInt(obj['rangoEdadEtiologiaMenor5']);
+                    edad5y14 = parseInt(obj['rangoEdadEtiologia5y14']);
+                    edad15y19 = parseInt(obj['rangoEdadEtiologia15y19']);
+                    edad20y24 = parseInt(obj['rangoEdadEtiologia20y24']);
+                    edad25y59 = parseInt(obj['rangoEdadEtiologia25y59']);
+                    edad60y65 = parseInt(obj['rangoEdadEtiologia60y65']);
+                    edadMayor65 = parseInt(obj['rangoEdadEtiologiamayor65']);
+
+
+                    totalPacientesProvincias = [];
+                    for (n = 0; n < pacientesProvinciasEtiologia.length; n++) {
+                        totalPacientesProvincias.push({
+                            name: pacientesProvinciasEtiologia[n]['nombre'],
+                            y: parseFloat(pacientesProvinciasEtiologia[n]['cantidad'])
+                        });
+                    }
+
+                    $('#nameProvincia').text('Comportamiento de los pacientes con hepatitis C por provincias');
+                    $('#nameSexo').text('Pacientes con hepatitis C por grupos de edades');
+                    $('#btnAtrasProvincia').removeClass('hidden');
+                    $('#btnAtrasSexo').removeClass('hidden');
+                    graficoTotalPacientes();
+                    graficoRangoEdades();
+
+                });
+
+            });
+
+            //Buscar de una provincia
+            function cargarProvincia(categoria, presupuesto) {
+
+                var idProvincia = 0;
+
+                //mostrar el total del presupuesto
+                {% for provincia in provincias %}
+                    provinciaSeleccionada = '{{ provincia.nombre }}';
+                    if (provinciaSeleccionada === categoria) {
+                        idProvincia = {{ provincia.id }};
+                    }
+                {% endfor %}
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    idProvincia: idProvincia
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoProvinciaMunicipio") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var pacientesProvinciasEtiologia = obj['pacientesProvinciasEtiologia'];
+                    edadMenor5 = parseInt(obj['rangoEdadEtiologiaMenor5']);
+                    edad5y14 = parseInt(obj['rangoEdadEtiologia5y14']);
+                    edad15y19 = parseInt(obj['rangoEdadEtiologia15y19']);
+                    edad20y24 = parseInt(obj['rangoEdadEtiologia20y24']);
+                    edad25y59 = parseInt(obj['rangoEdadEtiologia25y59']);
+                    edad60y65 = parseInt(obj['rangoEdadEtiologia60y65']);
+                    edadMayor65 = parseInt(obj['rangoEdadEtiologiamayor65']);
+
+
+                    totalPacientesProvincias = [];
+                    for (n = 0; n < pacientesProvinciasEtiologia.length; n++) {
+                        totalPacientesProvincias.push({
+                            name: pacientesProvinciasEtiologia[n]['nombre'],
+                            y: parseFloat(pacientesProvinciasEtiologia[n]['cantidad'])
+                        });
+                    }
+
+                    $('#totalB').text(obj['totalHepatitisB']);
+                    $('#totalC').text(obj['totalHepatitisC']);
+
+                    $('#nameProvincia').text('Comportamiento de los pacientes en la provincia ' + categoria);
+                    $('#nameSexo').text('Pacientes por grupos de edades en la provincia ' + categoria);
+                    $('#btnAtrasProvincia').removeClass('hidden');
+                    $('#btnAtrasSexo').removeClass('hidden');
+                    graficoTotalPacientes();
+                    graficoRangoEdades();
+
+                });
+            }
+
+            //Buscar de un rango de edad
+            function cargarEdad(categoria) {
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    edad: categoria
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoRangoEdad") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var pacientesProvinciasEtiologia = obj['pacientesProvinciasEtiologia'];
+
+                    totalPacientesProvincias = [];
+                    for (n = 0; n < pacientesProvinciasEtiologia.length; n++) {
+                        totalPacientesProvincias.push({
+                            name: pacientesProvinciasEtiologia[n]['nombre'],
+                            y: parseFloat(pacientesProvinciasEtiologia[n]['cantidad'])
+                        });
+                    }
+
+                    $('#totalB').text(obj['totalHepatitisB']);
+                    $('#totalC').text(obj['totalHepatitisC']);
+
+                    $('#nameProvincia').text('Comportamiento de los pacientes con un rango de edad ' + categoria + ' años');
+                    $('#btnAtrasProvincia').removeClass('hidden');
+                    graficoTotalPacientes();
+
+                });
+            }
+
+        });
+
+    </script>
+{% endblock %}

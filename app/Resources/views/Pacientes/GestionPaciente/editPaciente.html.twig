@@ -1,0 +1,1436 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/stylesheet/select2-bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin//multiselect/css/multi-select.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12  form-cont">
+                <h3>Actualizar la información del Paciente</h3>
+                <div id="tabs">
+                    <ul>
+                        <li><a href="#tabs-1">Generales    </a></li>
+                        <li><a href="#tabs-2">Localización </a></li>
+                        <li><a href="#tabs-3">Diagnóstico  </a></li>
+                        <li><a href="#tabs-4">Enfermedades </a></li>
+                        <li><a href="#tabs-5">Laboratorio  </a></li>
+                        <li><a href="#tabs-6">Tratamiento  </a></li>
+                    </ul>
+
+                    <div id="tabs-1">
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="carnetIdentidad">Carnet de Identidad:</label>
+                                    <input type="text" class="form-control input-number"
+                                           value="{{ paciente.carnetIdentidad }}" id="carnetIdentidad"
+                                           name="carnetIdentidad">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editNombre">Nombre:</label>
+                                    <input type="text" class="form-control  nombres" value="{{ paciente.nombre }}"
+                                           id="editNombre" name="editNombre">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editPrimerApellido">Primer Apellido:</label>
+                                    <input type="text" class="form-control  nombres"
+                                           value="{{ paciente.primerApellido }}" id="editPrimerApellido"
+                                           name="editPrimerApellido">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editSegundoApellido">Segundo Apellido:</label>
+                                    <input type="text" class="form-control  nombres"
+                                           value="{{ paciente.segundoApellido }}" id="editSegundoApellido"
+                                           name="editSegundoApellido">
+                                </div>
+                            </div>
+                            <div class="row" style="padding-top: 20px">
+                                <div class="col-md-3">
+                                    <label for="editEdad">Edad:</label>
+                                    <input type="text"  class="form-control cambioGeneral input-number"
+                                           value="{{ paciente.edad }}"
+                                           id="editEdad" name="editEdad">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editSexo">Sexo:</label>
+                                    <select class="form-control input-sm cambioGeneral" id="editSexo" name="editSexo">
+                                        <option value="{{ paciente.sexo }}">{{ paciente.sexo }}</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Femenino">Femenino</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editColorPiel">Color de la Piel:</label>
+                                    <select class="form-control input-sm cambioGeneral" id="editColorPiel"
+                                            name="editColorPiel">
+                                        <option value="{{ paciente.colorPiel.id }}">{{ paciente.colorPiel.nombre }}</option>
+                                        {% for colorPiel in  coloresPiel %}
+                                            <option value="{{ colorPiel.id }}">{{ colorPiel.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editEstadoCivil">Estado Civil:</label>
+                                    <select class="form-control input-sm cambioGeneral" id="editEstadoCivil"
+                                            name="editEstadoCivil">
+                                        <option value="{{ paciente.estadoCivil.id }}">{{ paciente.estadoCivil.nombre }}</option>
+                                        {% for estadoCivil in  estadosCiviles %}
+                                            <option value="{{ estadoCivil.id }}">{{ estadoCivil.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <section  style="border: solid 2px darkgray ; padding: 10px ; margin-top: 20px" id="orientacionesSexuales">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        <h6 style="padding: 5px">Orientaciones Sexuales:</h6>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 ambos">
+                                        <div class="form-group">
+                                            <label for="PPST">PPST</label>
+                                            <input class="orientacionSexual" type="checkbox" id="PPST" name="PPST">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 {{ paciente.sexo != 'Masculino' ? 'hidden' }} masculino">
+                                        <div class="form-group">
+                                            <label for="HSH">HSH</label>
+                                            <input class="orientacionSexual" type="checkbox" id="HSH" name="HSH">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 {{ paciente.sexo != 'Masculino' ? 'hidden' }} masculino">
+                                        <div class="form-group">
+                                            <label for="Trans">Trans</label>
+                                            <input class="orientacionSexual" type="checkbox" id="Trans" name="Trans">
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <div class="row" style="padding-top: 20px">
+                                <div class="col-md-3">
+                                    <label for="editNivelEscolaridad">Nivel de Escolaridad:</label>
+                                    <select class="form-control input-sm cambioGeneral" id="editNivelEscolaridad"
+                                            name="editNivelEscolaridad">
+                                        <option value="{{ paciente.nivelEscolaridad.id }}">{{ paciente.nivelEscolaridad.nombre }}</option>
+                                        {% for nivelEscolaridad in  nivelesEscolaridad %}
+                                            <option value="{{ nivelEscolaridad.id }}">{{ nivelEscolaridad.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editOcupacion">Ocupación:</label>
+                                    <select class="form-control input-sm cambioGeneral" id="editOcupacion"
+                                            name="editOcupacion">
+                                        <option value="{{ paciente.ocupacion.id }}">{{ paciente.ocupacion.nombre }}</option>
+                                        {% for ocupacion in  ocupaciones %}
+                                            <option value="{{ ocupacion.id }}">{{ ocupacion.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="padding-top: 20px">
+                                <div class="col-md-3 gestante" style="padding-top: 20px">
+                                    <div class="form-group">
+                                        <label for="editGestante">Gestante</label>
+                                        <input type="checkbox" id="editGestante" name="editGestante ">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 siGestante">
+                                    <div class="form-group">
+                                        <label  for="editFechaEdadGestacional">Registro de la edad gestacional</label>
+                                        <input value="{{ paciente.gestante == 1 ? paciente.pacienteGestante.fechaEdadGestacional|date('d-m-Y') : '' }}"
+                                               type="text" name="editFechaEdadGestacional"
+                                               placeholder="{{ paciente.gestante == 0 ? 'Seleccione la fecha' : ''}}"
+                                               class="f1-last-name form-control gestante opcional"
+                                               id="editFechaEdadGestacional">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 siGestante">
+                                    <div class="form-group">
+                                        <label  for="editSemanasGestacional">Semanas</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control gestante opcional"
+                                                    style="width: 100%"
+                                                    id="editSemanasGestacional" name="editSemanasGestacional">
+                                                <option value="{{ paciente.gestante == 1 ? paciente.pacienteGestante.semanaGestacional: 0}}">
+                                                    {{ paciente.gestante == 1 ? paciente.pacienteGestante.semanaGestacional ~ ' semanas' : 'Seleccione la cantidad de semanas...'}}</option>
+                                                {% for semana in  range(1,42) %}
+                                                    <option value="{{ semana }}">{{ semana~ ' semanas' }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 siGestante">
+                                    <div class="form-group">
+                                        <label  for="editDiasGestacional">Dias</label>
+                                        <input value="{{ paciente.gestante == 1 ? paciente.pacienteGestante.diasGestacional : '' }}"
+                                                 type="text" name="editFechaEdadGestacional" type="number" min="1" max="120" name="editDiasGestacional"
+                                                 placeholder="{{ paciente.gestante == 0 ? 'Teclee la cantidad de días...' : ''}}"
+                                                 class="f1-last-name form-control input-number gestante opcional"
+                                                 id="editDiasGestacional">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <p class="text-center" style="margin-top: 40px">
+                            <button id="btnGuardarGenerales" type="button"  class="btn btn-primario">Guardar
+                                cambios
+                            </button>
+                            <button id="btnSalirGenerales" type="button" class="btn btn-primario salir">Salir</button>
+                        </p>
+                    </div>
+                    <div id="tabs-2">
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="direccionCarnet">Dirección del Carnet:</label>
+                                    {% if paciente.direccionCarnet != null %}
+                                        <input type="text" class="form-control cambioLocalizacion"
+                                               value="{{ paciente.direccionCarnet }}"
+                                               id="direccionCarnet">
+                                    {% else %}
+                                        <input type="text" class="form-control cambioLocalizacion"
+                                               placeholder="Teclee la dirección de carnet..."
+                                               id="direccionCarnet">
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="provinciaCarnet">Provincia del Carnet:</label>
+                                    <select class="form-control input-sm cambioLocalizacion" id="provinciaCarnet"   name="provinciaCarnet">
+                                        {% if paciente.municipioCarnet != null%}
+                                            <option value="{{ paciente.municipioCarnet.provincia.id }}">{{ paciente.municipioCarnet.provincia.nombre }}</option>
+                                        {% else %}
+                                            <option value="0">Seleccione la provincia de carnet...</option>
+                                        {% endif %}
+                                        {% for provincia in  provincias %}
+                                            <option value="{{ provincia.id }}">{{ provincia.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="municipioCarnet">Municipio del Carnet:</label>
+                                    <select class="form-control input-sm cambioLocalizacion" id="municipioCarnet" name="municipioCarnet">
+                                        {% if paciente.municipioCarnet != null%}
+                                            <option id="inicio" value="{{ paciente.municipioCarnet.id }}">{{ paciente.municipioCarnet.nombre }}</option>
+                                        {% else %}
+                                            <option id="inicio" value="0">Seleccione el municipio de carnet...</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="padding-top: 20px">
+                                {% if(app.user.getNivelAcceso().nivel == 'nacional') %}
+                                    <div class="col-md-3">
+                                        <label for="provinciaResidencia">Provincia de Residencia:</label>
+                                        <select class="form-control input-sm cambioLocalizacion"  id="provinciaResidencia"  name="provinciaResidencia">
+                                            {% if paciente.unidadAtencion != null%}
+                                                <option value="{{ paciente.unidadAtencion.municipio.provincia.id }}">{{ paciente.unidadAtencion.municipio.provincia.nombre }}</option>
+                                            {% else %}
+                                                <option value="0">Seleccione la provincia de residencia...</option>
+                                            {% endif %}
+                                            {% for provincia in  provincias %}
+                                                <option value="{{ provincia.id }}">{{ provincia.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="municipioResidencia">Municipio de Residencia:</label>
+                                        <select class="form-control input-sm cambioLocalizacion"  id="municipioResidencia"  name="municipioResidencia">
+                                            {% if paciente.unidadAtencion != null%}
+                                                <option id="inicio2" value="{{ paciente.unidadAtencion.municipio.id }}">{{ paciente.unidadAtencion.municipio.nombre }}</option>
+                                            {% else %}
+                                                <option id="inicio2" value="0">Seleccione el municipio de residencia...</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="unidadAtencion">Unidad de Atención:</label>
+                                        <select class="form-control input-sm cambioLocalizacion" id="unidadAtencion"  name="unidadAtencion">
+                                            {% if paciente.unidadAtencion != null%}
+                                                <option id="inicio3" value="{{ paciente.unidadAtencion.id }}">{{ paciente.unidadAtencion.nombre }}</option>
+                                            {% else %}
+                                                <option id="inicio3" value="0">Seleccione la unidad de atención...</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                {% elseif(app.user.getNivelAcceso().nivel == 'provincial') %}
+                                    <div class="col-md-3">
+                                        <label for="provinciaResidencia">Provincia de Residencia:</label>
+                                        <strong class="form-control">{{ app.user.getUnidad().getMunicipio().getProvincia().nombre }}</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="municipioResidencia">Municipio de Residencia:</label>
+                                        <select class="form-control input-sm cambioLocalizacion"  id="municipioResidencia"  name="municipioResidencia">
+                                            {% if paciente.unidadAtencion != null%}
+                                                <option id="inicio2" value="{{ paciente.unidadAtencion.municipio.id }}">{{ paciente.unidadAtencion.municipio.nombre }}</option>
+                                            {% else %}
+                                                <option id="inicio2" value="0">Seleccione el municipio de residencia...</option>
+                                            {% endif %}
+                                            {% for municipio in  municipios %}
+                                                {% if municipio.getProvincia().codigo == app.user.getUnidad().getMunicipio().getProvincia().codigo %}
+                                                    <option value="{{ municipio.id }}">{{ municipio.nombre }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="unidadAtencion">Unidad de Atención:</label>
+                                        <select class="form-control input-sm cambioLocalizacion" id="unidadAtencion"  name="unidadAtencion">
+                                            {% if paciente.unidadAtencion != null%}
+                                                <option id="inicio3" value="{{ paciente.unidadAtencion.id }}">{{ paciente.unidadAtencion.nombre }}</option>
+                                            {% else %}
+                                                <option id="inicio3" value="0">Seleccione la unidad de atención...</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-3">
+                                        <label for="provinciaResidencia">Provincia de Residencia:</label>
+                                        <strong class="form-control">{{ app.user.getUnidad().getMunicipio().getProvincia().nombre }}</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label  for="municipioResidencia">Municipio de Residencia:</label>
+                                        <strong class="form-control">{{ app.user.getUnidad().getMunicipio().nombre }}</strong>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="unidadAtencion">Unidad de Atención:</label>
+                                        <select class="form-control input-sm cambioLocalizacion" id="unidadAtencion"  name="unidadAtencion">
+                                            {% if paciente.unidadAtencion != null%}
+                                                <option id="inicio3" value="{{ paciente.unidadAtencion.id }}">{{ paciente.unidadAtencion.nombre }}</option>
+                                            {% else %}
+                                                <option id="inicio3" value="0">Seleccione la unidad de atención...</option>
+                                            {% endif %}
+                                            {% for unidad in  unidades %}
+                                                {% if unidad.getMunicipio().codigo == app.user.getUnidad().getMunicipio().codigo %}
+                                                    <option value="{{ unidad.id }}">{{ unidad.nombre }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="row" style="padding-top: 20px">
+                                <div class="col-md-6">
+                                    <label for="direccionResidencia">Dirección de Residencia:</label>
+                                    {% if paciente.residenciaDirecciones|length > 0 %}
+                                        <input type="text" class="form-control cambioLocalizacion"
+                                               value="{{ paciente.residenciaDirecciones[(paciente.residenciaDirecciones|length)-1].direccionResidencia }}"
+                                               id="direccionResidencia">
+                                    {% else %}
+                                        <input type="text" class="form-control cambioLocalizacion"
+                                               placeholder="Teclee la dirección de residencia..."
+                                               id="direccionResidencia">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
+                        <p class="text-center" style="margin-top: 20px">
+                            <button id="btnGuardarLocalizacion" type="button"  class="btn btn-primario">Guardar cambios</button>
+                            <button id="btnSalirLocalizacion" type="button" class="btn btn-primario salir"> Salir</button>
+                        </p>
+                    </div>
+                    <div id="tabs-3">
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="editFechaDiagnostico">Fecha de diagnóstico</label>
+                                    <input type="text" name="editFechaDiagnostico" value="{{ paciente.fechaDiagnostico|date('d-m-Y') }}"
+                                           class="f1-last-name form-control" id="editFechaDiagnostico">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editEtiologia">Etiología</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" id="editEtiologia" name="editEtiologias">
+                                            <option value="{{ paciente.etiologia.id }}">{{ paciente.etiologia.nombre }}</option>
+                                            {% for etiologia in  etiologias %}
+                                                <option value="{{ etiologia.id }}">{{ etiologia.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editTipoHepatitis">Tipo de Hepatitis</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" id="editTipoHepatitis" name="editTipoHepatitis">
+                                            <option value="{{ paciente.tipoHepatitis.id }}">{{ paciente.tipoHepatitis.nombre }}</option>
+                                            {% for tipoHepatitis in  tiposHepatitis %}
+                                                <option value="{{ tipoHepatitis.id }}">{{ tipoHepatitis.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" id="estadio">
+                                    <label for="editEstadioHepatitis">Estadío de Hepatitis</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control estadioss" id="editEstadioHepatitis" name="editEstadioHepatitis">
+                                            {% if paciente.estadioHepatitis == null %}
+                                                <option value="0">Seleccione el estadío de hepatitis...</option>
+                                            {% else %}
+                                            <option value="{{ paciente.estadioHepatitis.id }}">{{ paciente.estadioHepatitis.nombre }}</option>
+                                            {% endif %}
+                                            {% for estadioHepatitis in  estadiosHepatitis %}
+                                                <option value="{{ estadioHepatitis.id }}">{{ estadioHepatitis.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="editFormaInfeccion">Forma de Infección</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" style="width: 100%" id="editFormaInfeccion" name="editFormaInfeccion">
+                                            <option value="{{ paciente.formaInfeccion.id }}">{{ paciente.formaInfeccion.nombre }}</option>
+                                            {% for formaInfeccion in  formasInfeccion %}
+                                                <option value="{{ formaInfeccion.id }}">{{ formaInfeccion.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="editGrupoVulnerable">Grupo Vulnerable</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" style="width: 100%" id="editGrupoVulnerable" name="editGrupoVulnerable">
+                                            <option value="{{ paciente.grupoVulnerable.id }}">{{ paciente.grupoVulnerable.nombre }}</option>
+                                            {% for grupoVulnerable in  gruposVulnerables %}
+                                                <option value="{{ grupoVulnerable.id }}">{{ grupoVulnerable.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="padding-top: 20px">
+                                    <label for="editTransfusion">Transfusión</label>
+                                    <input type="checkbox" id="editTransfusion" name="editTransfusion">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="editFuentePesquisa">Fuente de Pesquisa</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" style="width: 100%" id="editFuentePesquisa" name="editFuentePesquisa">
+                                            <option value="{{ paciente.fuentePesquisa.id }}">{{ paciente.fuentePesquisa.nombre }}</option>
+                                            {% for fuentePesquisa in  fuentesPesquisa %}
+                                                <option value="{{ fuentePesquisa.id }}">{{ fuentePesquisa.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" id="motivo">
+                                    <label for="editMotivoFuentePesquisa">Motivo Fuente Pesquisa</label>
+                                    <div class="form-group">
+                                        <select  class="f1-last-name form-control pesquisa" style="width: 100%" id="editMotivoFuentePesquisa" name="editMotivoFuentePesquisa">
+                                            {% if paciente.motivoFuentePesquisa == null %}
+                                                <option value="0">Seleccione el motivo de la fuente de pesquisa...</option>
+                                            {% else %}
+                                                <option value="{{ paciente.motivoFuentePesquisa.id }}">
+                                                    {{ paciente.motivoFuentePesquisa.nombre }}
+                                                </option>
+                                            {% endif %}
+                                            {% for motivoFuentePesquisa in  motivosFuentePesquisa %}
+                                                <option value="{{ motivoFuentePesquisa.id }}">{{ motivoFuentePesquisa.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-group" id="acordionEvoluciones" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading drop-header" role="tab" id="heading1"
+                                         style="background-color: #b4b4b4">
+                                        <h4 class="panel-title">
+                                        <span class="glyphicon glyphicon-duplicate"
+                                              style="margin-right: 10px ; font-size: 25px; color: #393939"></span>
+                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion"
+                                               href="#collapse1" aria-expanded="false" aria-controls="collapse1"
+                                               style="font-weight: bold; vertical-align: super">
+                                                Evoluciones Clínicas
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse1" class="panel-collapse collapse in" role="tabpanel"
+                                         aria-labelledby="heading1">
+                                        <div class="row {{ paciente.causaFallecimiento == null ? 'hidden' }} " id="rowCausaFallecimiento" style="margin-top: 15px ; margin-left: 20px">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="form-group" style="background-color: #e0e0e0 ; padding: 10px ;border-radius: 4px">
+                                                    <h6 id="hCausaFallecimiento">Causa del Fallecimiento: {{ paciente.causaFallecimiento != null ? paciente.causaFallecimiento.nombre : ''  }}</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row {{ paciente.causaFallecimiento != null ? 'hidden' }}" id="rowAddEvolucionClinica" style="margin-top: 15px ; margin-left: 20px">
+                                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                                <div class="form-group">
+                                                    <label class="sr-only" for="addEvolucionClinica">Evolución Clínica</label>
+                                                    <select class="f1-last-name form-control opcional"  id="addEvolucionClinica"
+                                                            name="addEvolucionClinica">
+                                                        <option value="">Seleccione la evolución clínica...</option>
+                                                        {% for evolucion in  evolucionesClinicas %}
+                                                            <option value="{{ evolucion.id }}">{{ evolucion.nombre }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3 hidden" id="divCausaFallecimiento">
+                                                <div class="form-group">
+                                                    <label class="sr-only" for="causaFallecimiento">Causa Fallecimiento</label>
+                                                    <select class="f1-last-name form-control opcional"  id="causaFallecimiento"
+                                                            name="causaFallecimiento">
+                                                        <option value="">Causa del fallecimiento...</option>
+                                                        {% for causa in  causasFallecimiento %}
+                                                            <option value="{{ causa.id }}">{{ causa.nombre }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                                <div class="form-group">
+                                                    <label class="sr-only" for="addFechaEvolucionClinica">Fecha</label>
+                                                    <input type="text" name="addFechaEvolucionClinica"
+                                                           placeholder="Fecha de la evolución clínica..."
+                                                           class="f1-last-name form-control opcional" id="addFechaEvolucionClinica">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                                <div class="form-group">
+                                                    <button type="button"  {{ paciente.causaFallecimiento != null ? 'disabled' }} class="btn" id="agregarBtnEvolucionClinica">Agregar
+                                                        Evolución Clínica
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <table id="tablaEvolucionesClinicas" class="table table-bordered"
+                                                   style="margin-top: 17px ; margin-left: 50px ; width: 90%">
+                                                <thead>
+                                                <tr style="color: #2bc7c7">
+                                                    <th>Evolución Clínica</th>
+                                                    <th>Fecha</th>
+                                                    <th>Acción</th>
+                                                </tr>
+                                                </thead>
+                                                {% set I = 0 %}
+                                                <tbody id="tbodyEvolucionesClinicas">
+                                                    {% for resultado in paciente.tratamientoResultados %}
+                                                        <tr  data-id ="{{ I }}">
+                                                            <td>{{ resultado.evolucionClinica.nombre }}</td>
+                                                            <td>{{ resultado.fecha|date('d-m-Y') }}</td>
+                                                            <td>
+                                                                <span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"
+                                                                      data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>
+                                                            </td>
+                                                        </tr>
+                                                        {% set I = I + 1 %}
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-center" style="margin-top: 20px">
+                                <button id="btnGuardarDiagnostico" type="button"  class="btn btn-primario">Guardar cambios</button>
+                                <button id="btnSalirDiagnostico" type="button" class="btn btn-primario salir">Salir</button>
+                            </p>
+                        </form>
+                    </div>
+                    <div id="tabs-4">
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div class="panel-group" id="miAcordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading drop-header" role="tab" id="headingOne"
+                                         style="background-color: #b4b4b4">
+                                        <h4 class="panel-title">
+                                        <span class="glyphicon glyphicon-duplicate"
+                                              style="margin-right: 10px ; font-size: 25px; color: #393939"></span>
+                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion"
+                                               href="#collapseOne" aria-expanded="false" aria-controls="collapseOne"
+                                               style="font-weight: bold; vertical-align: super">
+                                                Antecendentes Patológicos
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                                         aria-labelledby="headingOne">
+                                        <div style="padding-top: 10px">
+                                            <label class="control-label " for="multi-antecedentes">Seleccione:</label>
+                                            <select multiple="multiple" id="multi-antecedentes" name="multi-antecedentes[]"
+                                                    class="form-control">
+                                                {% for antecedente in antecedentes %}
+                                                    {% if not (antecedente in paciente.antecedentesPatologicos) %}
+                                                        <option  value={{ antecedente.id }}>{{ antecedente.nombre }}</option>
+                                                    {% else %}
+                                                        <option class="misAntecedentes" value={{ antecedente.id }}>{{ antecedente.nombre }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading drop-header" role="tab" id="headingTwo"
+                                         style="background-color: #b4b4b4">
+                                        <h4 class="panel-title">
+                                        <span class="glyphicon glyphicon-duplicate"
+                                              style="margin-right: 10px ; font-size: 25px; color: #393939"></span>
+                                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion"
+                                               href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"
+                                               style="font-weight: bold; vertical-align: super">
+                                                Coinfecciones
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel"
+                                         aria-labelledby="headingTwo">
+                                        <div class="row" style="margin-top: 15px ; margin-left: 20px">
+                                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                                <div class="form-group">
+                                                    <label class="sr-only" for="addCoinfeccion">Coinfección</label>
+                                                    <select class="f1-last-name form-control opcional"  id="addCoinfeccion"
+                                                            name="addCoinfeccion">
+                                                        <option value="">Seleccione la coinfección...</option>
+                                                        {% for coinfeccion in  coinfecciones %}
+                                                            <option value="{{ coinfeccion.id }}">{{ coinfeccion.nombre }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                                <div class="form-group">
+                                                    <label class="sr-only" for="addFechaCoinfeccion">Fecha</label>
+                                                    <input type="text" name="addFechaCoinfeccion"
+                                                           placeholder="Seleccione la fecha de la coinfección..."
+                                                           class="f1-last-name form-control opcional" id="addFechaCoinfeccion">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <button type="button" class="btn" id="agregarBtnCoinfeccion">Agregar
+                                                        Coinfección
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <table id="tablaCoinfeccionesPaciente" class="table table-bordered"
+                                                   style="margin-top: 17px ; margin-left: 50px ; width: 90%">
+                                                <thead>
+                                                <tr style="color: #2bc7c7">
+                                                    <th>Coinfección</th>
+                                                    <th>Fecha</th>
+                                                    <th>Acción</th>
+                                                </tr>
+                                                </thead>
+                                                {% set I = 0 %}
+                                                <tbody id="tbodyCoinfecciones">
+                                                {% for coinfeccion in paciente.coinfecciones %}
+                                                    <tr  data-id ="{{ I }}">
+                                                        <td>{{ coinfeccion.coinfeccion.nombre }}</td>
+                                                        <td>{{ coinfeccion.fecha|date('d-m-Y') }}</td>
+                                                        <td>
+                                                            <span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"
+                                                                  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>
+                                                        </td>
+                                                    </tr>
+                                                    {% set I = I + 1 %}
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-center" style="margin-top: 20px">
+                                <button id="btnGuardarEnfermedades" type="button"  class="btn btn-primario">Guardar cambios</button>
+                                <button id="btnSalirEnfermedades" type="button" class="btn btn-primario salir">Salir</button>
+                            </p>
+                        </form>
+                    </div>
+                    <div id="tabs-5">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="editPrueba">Prueba</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" id="editPrueba" name="editPrueba">
+                                            <option value="0">Seleccione la prueba...</option>
+                                            {% for prueba in  pruebas %}
+                                                {% if prueba.getTipoEtiologia().id == paciente.etiologia.id or prueba.getTipoEtiologia().id == 3 %}
+                                                    <option value="{{ prueba.id }}">{{ prueba.nombre }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="editResultado">Resultado </label>
+                                    <div class="form-group">
+                                        <select disabled class="f1-last-name form-control" id="editResultado"
+                                                name="editResultado">
+                                            <option id="inicio4" value="0">Seleccione el resultado...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div id="mostrarEditValor" style="display: none">
+                                        <label for="editValor">Valor:</label>
+                                        <input type="text" class="form-control input-number"
+                                               id="editValor" name="editValor">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="control-label" for="editFechaPrueba">Fecha realizada</label>
+                                        <input type="text" name="editFechaPrueba"
+                                               placeholder="Seleccione la fecha..."
+                                               class="f1-last-name form-control"
+                                               id="editFechaPrueba">
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="padding-top: 20px">
+                                    <button type="button" class="btn" id="agregarBtnEditPruebas">Agregar
+                                        Prueba
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table id="esquemasEditPrueba" class="table table-bordered"
+                                       style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                    <thead>
+                                    <tr style="color: #2bc7c7">
+                                        <th>Prueba</th>
+                                        <th>Valor</th>
+                                        <th>Resultado</th>
+                                        <th>Fecha</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tbody"></tbody>
+                                </table>
+                            </div>
+                            <p class="text-center" style="margin-top: 20px">
+                                <button id="btnGuardarPrueba" type="button"  class="btn btn-primario">
+                                    Guardar cambios
+                                </button>
+                                <button id="btnSalirPrueba" type="button" class="btn btn-primario salir">Salir</button>
+                            </p>
+                        </form>
+                    </div>
+                    <div id="tabs-6">
+                        <form>
+                            <h4>Esquemas de Medicamentos:</h4>
+                            <div class="row" style="padding-top: 10px">
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label class="control-label " for="editMedicamentos">Seleccione los Medicamentos:</label>
+                                        <select multiple="multiple" id="editMedicamentos" name="editMedicamentos[]" class="form-control">
+
+                                            {% for medicamento in medicamentos %}
+
+                                                <option  value={{ medicamento.id }}>{{ medicamento.nombre }}</option>
+
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="editFechaInicioTratamiento">Fecha de Inicio del Tratamiento</label>
+                                        <input type="text" name="editFechaInicioTratamiento" placeholder="Seleccione la fecha de inicio del tratamiento..." class="f1-last-name form-control" id="editFechaInicioTratamiento">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="sr-only" for="editFechaFinalTratamiento">Fecha Final del Tratamiento</label>
+                                        <input type="text" name="editFechaFinalTratamiento" placeholder="Seleccione la fecha final del tratamiento..." class="f1-last-name form-control" id="editFechaFinalTratamiento">
+                                    </div>
+                                    <button type="button" class="btn" id="agregarBtnEsquemaMedicamento">Agregar Esquema</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table id="esquemasMedicamento" class="table table-bordered" style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                    <thead>
+                                    <tr style="color: #2bc7c7">
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Final</th>
+                                        <th>Medicamentos</th>
+                                        <th>Acción </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tbody"></tbody>
+                                </table>
+                            </div>
+                            <p class="text-center" style="margin-top: 20px">
+                                <button id="btnGuardarTratamiento" type="button"  class="btn btn-primario">
+                                    Guardar cambios
+                                </button>
+                                <button id="btnSalirTratamiento" type="button" class="btn btn-primario salir">Salir</button>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.js') }}"></script>
+    <script src="{{ asset('easyadmin/multiselect/js/jquery.multi-select.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/select2.full.min.js') }}"></script>
+    <!-- mis js -->
+    <script src="{{ asset('easyadmin/javascript/formatoTipos.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/moment.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/paciente/editPaciente.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            function verificarusuario() {
+                {% if not (is_granted("ROLE_EDITOR_ESTADISTICA") or is_granted("ROLE_SUPERUSUARIO")) %}
+                    window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+
+            verificarusuario();
+
+            {{ include('Pacientes/GestionPaciente/editPacienteTab1.html.twig') }}
+            {{ include('Pacientes/GestionPaciente/editPacienteTab2.html.twig') }}
+
+            //--------- abandonar el formulario -----------------
+            $('.salir').on("click", function () {
+                window.location.href = "{{ path(origen) }}";
+
+            });
+
+            var hoy = '{{ "now"|date('d-m-Y') }}';
+
+            $( "#editFechaDiagnostico , #editFechaEdadGestacional , #editFechaInicioTratamiento, #editFechaFallecimiento, #editFechaFinalTratamiento, #editFechaPrueba , #addFechaEvolucionClinica ,#addFechaCoinfeccion" ).datepicker({
+                firstDay: 1,
+                dateFormat:'dd-mm-yy',
+                changeMonth: true,
+                changeYear: true,
+                maxDate: hoy
+            });
+
+            // COMIENZA EL JS PARA EL TAB 3
+            {% if paciente.transfusion == 1 %}
+                $('#editTransfusion').prop('checked', true);
+                $('#editTransfusion').button('refresh');
+            {% endif %}
+
+            //Seccion de evoluciones clinicas
+            var pacienteEvolucionesClinicas = [];
+            var causaFallecimiento = '{{ paciente.causaFallecimiento != null ? paciente.causaFallecimiento.nombre : '0'  }}';
+            //llenando el arreglo con las evoluciones clinicas del paciente
+            {% for resultado in paciente.tratamientoResultados %}
+                pacienteEvolucionesClinicas.push({
+                    idEvolucionClinica: '{{ resultado.evolucionClinica.id }}',
+                    fecha: '{{ resultado.fecha|date('Y-m-d') }}',
+                });
+            {% endfor %}
+
+            //Relacionando selects evolucionClinica - causaFallecimiento
+            $('#addEvolucionClinica').on('change' , function () {
+
+                if($(this).val() == '8'){ $('#divCausaFallecimiento').removeClass('hidden'); }
+                else{ $('#divCausaFallecimiento').addClass('hidden'); }
+            });
+
+            //funcion que agrega una evolucion clinica y la visualiza en la tabla
+            var L = '{{ paciente.tratamientoResultados|length }}';
+            $('#agregarBtnEvolucionClinica').on('click', function(){
+
+                var fecha =  $("#addFechaEvolucionClinica").val();
+                var nombreEvolucionClinica = '';
+
+                if(  $('#addEvolucionClinica').val() == null ){
+                    alertify.alert('<strong>Debe seleccionar la evolución clínica que desea agregar.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+                if(fecha == '') {
+                    alertify.alert('<strong>Debe seleccionar la fecha de la evolución clínica.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                var evolucion = $('#addEvolucionClinica').val();
+                {% for evolucion in evolucionesClinicas %}
+                    if( evolucion === '{{ evolucion.id }}')
+                    {
+                        nombreEvolucionClinica = '{{ evolucion.nombre }}';
+                    }
+                {% endfor %}
+
+                $('#tablaEvolucionesClinicas tbody').append('<tr data-id="'+L+'"><td>'+ nombreEvolucionClinica +'</td><td>'+ fecha +'</td><td>' +
+                    '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                    '</td></tr>');
+
+                pacienteEvolucionesClinicas.push({
+                    idEvolucionClinica: evolucion,
+                    fecha: fecha,
+                });
+                if( evolucion == '8' ){
+                    causaFallecimiento = $('#causaFallecimiento').val();
+                    $("#rowAddEvolucionClinica").addClass('hidden');
+                    {% for causa in causasFallecimiento  %}
+                        if( causaFallecimiento == "{{ causa.id }}")
+                        {
+                            $("#hCausaFallecimiento").text('Causa del Fallecimiento: {{ causa.nombre }}');
+                        }
+                    {% endfor %}
+                    $("#rowCausaFallecimiento").removeClass('hidden');
+                }
+
+                $('[data-toggle="tooltip"]').tooltip();
+                L++;
+                $("#addFechaEvolucionClinica").val('');
+                $("#addEvolucionClinica").val('');
+                $("#causaFallecimiento").val('');
+                $("#divCausaFallecimiento").addClass('hidden');
+            });
+
+            //funcion que elimina un esquema de medicamento del arreglo y de  la tabla
+            $('#tablaEvolucionesClinicas tbody').on('click', '.borrar', function () {
+                var row = $(this).parents('tr');
+                id = row.data('id');
+                if(pacienteEvolucionesClinicas[id].idEvolucionClinica == '8'){
+
+                    $("#hCausaFallecimiento").text('Causa del Fallecimiento: ');
+                    $("#rowCausaFallecimiento").addClass('hidden');
+                    $("#rowAddEvolucionClinica").removeClass('hidden');
+                    causaFallecimiento = '0';
+                }
+                row.fadeOut();
+                delete pacienteEvolucionesClinicas[id];
+            });
+
+            $('#btnGuardarDiagnostico').click(function () {
+
+                if($('#editFechaDiagnostico').val() == ''){
+                    alertify.alert('<strong>El campo fecha de diagnóstico es obligatorio, no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if($('#editTipoHepatitis').val() == '2' && $('#editEstadioHepatitis').val() == '0'){
+                    alertify.alert('<strong>Debe seleccionar un estadío para este tipo de hepatitis.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                if($('#editFuentePesquisa').val() == '3' && $('#editMotivoFuentePesquisa').val() == '0'){
+                    alertify.alert('<strong>Debe seleccionar un motivo para la fuente de pesquisa: No donantes .</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if(pacienteEvolucionesClinicas.length == 0){
+                    alertify.alert('<strong>El paciente debe tener al menos una evolución clínica</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                $(".preload").removeClass('hidden');
+
+                var transfusion = 0;
+                if ($('#editTransfusion').prop('checked')) {
+                    transfusion = 1;
+                }
+
+                var mat_datos = {
+
+                    idPaciente: '{{ paciente.getId() }}',
+                    fechaDiagnostico: $("#editFechaDiagnostico").val(),
+                    etiologia: $("#editEtiologia").val(),
+                    tipoHepatitis: $("#editTipoHepatitis").val(),
+                    estadioHepatitis: $("#editEstadioHepatitis").val(),
+                    formaInfeccion: $("#editFormaInfeccion").val(),
+                    grupoVulnerable: $("#editGrupoVulnerable").val(),
+                    fuentePesquisa: $("#editFuentePesquisa").val(),
+                    motivoFuentePesquisa: $("#editMotivoFuentePesquisa").val(),
+                    transfusion: transfusion,
+                    evolucionesClinicas: pacienteEvolucionesClinicas,
+                    idCausaFallecimiento: causaFallecimiento,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("updatePacienteDiagnostico") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if (data == 'ok') {
+
+                        alertify.alert('<strong>Los datos modificados han sido guardados correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label', 'Aceptar')
+                    } else {
+                        alertify.alert('<strong>' + data + '</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar')
+                    }
+                });
+            });
+
+            // COMIENZA EL JS PARA EL TAB 4
+
+            //funcion que agrega una coinfeccion y la visualiza en la tabla
+            var pacienteCoinfecciones = [];
+            var K = 0;
+            //llenando el arreglo con las coinfecciones del paciente
+            {% for coinfeccion in paciente.coinfecciones %}
+                pacienteCoinfecciones.push({
+                    idCoinfeccion: '{{ coinfeccion.coinfeccion.id }}',
+                    fecha: '{{ coinfeccion.fecha|date('Y-m-d') }}',
+                });
+                K++;
+            {% endfor %}
+            $('#agregarBtnCoinfeccion').on('click', function(){
+
+                var fecha =  $("#addFechaCoinfeccion").val();
+                var nombreCoinfeccion = '';
+
+                if(  $('#addCoinfeccion').val() == null ){
+                    alertify.alert('<strong>Debe seleccionar la coinfección que desea agregar.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+                if(fecha == '') {
+                    alertify.alert('<strong>Debe seleccionar la fecha de contagio de la coinfección.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                var coinfeccion = $('#addCoinfeccion').val();
+                {% for coinfeccion in coinfecciones %}
+                    if( coinfeccion === '{{ coinfeccion.id }}')
+                    {
+                        nombreCoinfeccion = '{{ coinfeccion.nombre }}';
+                    }
+                {% endfor %}
+
+                $('#tablaCoinfeccionesPaciente tbody').append('<tr data-id="'+K+'"><td>'+ nombreCoinfeccion +'</td><td>'+ fecha +'</td><td>' +
+                    '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                    '</td></tr>');
+
+                pacienteCoinfecciones.push({
+                    idCoinfeccion: coinfeccion,
+                    fecha: fecha,
+                });
+
+                $('[data-toggle="tooltip"]').tooltip();
+                K++;
+                $("#addFechaCoinfeccion").val('');
+                $("#addCoinfeccion").val('');
+            });
+
+            //funcion que elimina una coinfeccion del arreglo y de  la tabla
+            $('#tablaCoinfeccionesPaciente tbody').on('click', '.borrar', function () {
+                var row = $(this).parents('tr');
+                id = row.data('id');
+                row.fadeOut();
+                delete pacienteCoinfecciones[id];
+            });
+
+            $('#btnGuardarEnfermedades').click(function () {
+
+                $(".preload").removeClass('hidden');
+
+                var antecedentesPatologicos = [];
+
+                $('#ms-multi-antecedentes li.ms-elem-selectable ').each(function(){
+
+                    if($(this).hasClass('ms-selected')){
+
+                        var valor = $(this).text();
+                        antecedentesPatologicos.push(valor);
+                    }
+                });
+
+                var mat_datos = {
+
+                    idPaciente: '{{ paciente.getId() }}',
+                    antecedentesPatologicos: antecedentesPatologicos,
+                    coinfecciones: pacienteCoinfecciones,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("updatePacienteEnfermedades") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if (data == 'ok') {
+
+                        alertify.alert('<strong>Los datos modificados han sido guardados correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label', 'Aceptar')
+                    } else {
+                        alertify.alert('<strong>' + data + '</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar')
+                    }
+                });
+            });
+
+            // COMIENZA EL JS PARA EL TAB 5
+            var pruebasPaciente = [];
+            var I = 0;
+
+            //funcion que carga las pruebas del paciente , las visualiza en la tabla y las guarda en el arreglo
+            function cargarPruebasTabla(){
+
+                {% for prueba in paciente.getPacientePruebas %}
+                    var idPrueba =  '{{ prueba.getprueba().id }}';
+                    var prueba =  '{{ prueba.getprueba().nombre }}';
+                    var idResultado = '{{ prueba.getresultadoPrueba().id }}';
+                    var resultado = '{{ prueba.getresultadoPrueba().resultadoPrueba }}';
+                    var valor = '{{ prueba.valor == null ? '' :prueba.valor }}';
+                    var fechaPrueba = '{{ prueba.fecha()|date('d-m-Y') }}';
+
+                    $('#esquemasEditPrueba tbody').append('<tr data-id="'+I+'"><td>'+ prueba +'</td><td>'+ resultado +'</td><td>'+ valor +'</td><td>'+ fechaPrueba +'</td><td>' +
+                        '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                        '</td></tr>');
+
+                    pruebasPaciente.push({
+                        prueba: idPrueba,
+                        resultado: idResultado,
+                        valor: valor,
+                        fechaPrueba: fechaPrueba,
+                    });
+                {% endfor %}
+            }
+            {% if paciente.cantidadPruebas != 0 %}
+                 cargarPruebasTabla();
+            {% endif %}
+
+            //funcion que agrega una prueba y la visualiza en la tabla
+            $('#agregarBtnEditPruebas').on('click', function () {
+
+                var prueba = $("#editPrueba").val();
+                var resultado = $("#editResultado").val();
+                var valor = $("#editValor").val();
+                var fechaPrueba = $("#editFechaPrueba").val();
+
+                var mostrarValor = 0;
+                {% for prueba in pruebas %}
+                id = '{{ prueba.id }}';
+                if (id == prueba) {
+                    {% if prueba.valor == 1 %}
+                    mostrarValor = 1;
+                    {% endif %}
+                }
+                {% endfor %}
+
+                if ($('#editPrueba').val() == '0') {
+                    alertify.alert('<strong>Debe seleccionar la prueba realizada.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                } else if ($('#editResultado').val() == '0') {
+                    alertify.alert('<strong>Debe seleccionar el resultado de la prueba.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                } else if (mostrarValor == 1 && $('#editValor').val() == '') {
+                    alertify.alert('<strong>Debe introducir un valor para esta prueba.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                } else if ($("#editFechaPrueba").val() == '') {
+                    alertify.alert('<strong>Debe seleccionar la fecha de que se realiza la prueba.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                } else {
+                    {% for prueba in  pruebas %}
+                    var idPrueba = '{{ prueba.id }}';
+
+                    if (idPrueba == prueba) {
+                        var nombrePrueba = '{{ prueba.nombre }}';
+                    }
+                    {% endfor %}
+
+                    {% for resultadoPrueba in  resultadosPruebas %}
+                    var idResultadoPrueba = '{{ resultadoPrueba.id }}';
+
+                    if (idResultadoPrueba == resultado) {
+                        var nombreResultadoPrueba = '{{ resultadoPrueba.resultadoPrueba }}';
+                    }
+                    {% endfor %}
+
+                    $('#esquemasEditPrueba tbody').append('<tr data-id="' + I + '"><td>' + nombrePrueba + '</td><td>' + valor + '</td><td>' + nombreResultadoPrueba + '</td><td>' + fechaPrueba + '</td><td>' +
+                        '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                        '</td></tr>');
+
+                    pruebasPaciente.push({
+                        prueba: prueba,
+                        resultado: resultado,
+                        valor: valor,
+                        fechaPrueba: fechaPrueba,
+                    });
+
+                    $("#editPrueba").val('');
+                    $("#editResultado").val('');
+                    $('#mostrarEditValor').css("display", "none");
+                    $("#editValor").val('');
+                    $("#editFechaPrueba").val('');
+                }
+            });
+
+            //funcion que elimina la prueba del arreglo y de  la tabla editar
+            $('#esquemasEditPrueba tbody').on('click', '.borrar', function () {
+                var row = $(this).parents('tr');
+                id = row.data('id');
+                row.fadeOut();
+                delete pruebasPaciente[id];
+            });
+
+            $('#btnGuardarPrueba').click(function () {
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+
+                    idPaciente: '{{ paciente.getId() }}',
+                    pruebasPaciente: pruebasPaciente,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("updatePacientePrueba") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if (data == 'ok') {
+
+                        alertify.alert('<strong>Los datos modificados han sido guardado correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label', 'Aceptar')
+                    } else {
+                        alertify.alert('<strong>' + data + '</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar')
+                    }
+                });
+            });
+
+            //relacionar selects
+            $('#editPrueba').on('change', function () {
+                var html = '';
+                var prueba = $('#editPrueba').val();
+                if (prueba == '') {
+                    $("#editResultado").prop('disabled', true);
+                    $("option").remove('.cambioResultado');
+                } else {
+                    $("option").remove('.cambioResultado');
+                    $("#inicio4").after('<option class="cambioResultado"></option>');
+
+                    {% for resultadoPrueba in  resultadosPruebas %}
+                    var idPrueba = '{{ resultadoPrueba.getPrueba().id }}';
+
+                    if (idPrueba == prueba) {
+                        var id = {{ resultadoPrueba.id }};
+                        var name = '{{ resultadoPrueba.resultadoPrueba }}';
+                        html += '<option class="cambioResultado" value="' + id + '">' + name + '</option>';
+
+                    }
+                    {% endfor %}
+                    $(".cambioResultado").replaceWith(html);
+                    $("#editResultado").prop('disabled', false);
+                }
+                var id = '';
+                var valor = 0;
+                {% for prueba in pruebas %}
+                id = '{{ prueba.id }}';
+                if (id == prueba) {
+                    {% if prueba.valor == 1 %}
+                    valor = 1;
+                    {% endif %}
+                }
+                {% endfor %}
+                if (valor == 1) {
+                    $('#mostrarEditValor').css("display", "block");
+                } else {
+                    $('#mostrarEditValor').css("display", "none");
+                }
+            });
+
+            // COMIENZA EL JS PARA EL TAB 6
+            var pacienteEsquemas = [];
+            var J = 0;
+
+            //funcion que carga los esquemas del paciente , lo visualiza en la tabla y los guarda en el arreglo
+            function cargarEsquemasTabla(){
+                {% for esquema in paciente.medicamentoEsquemas %}
+                    var medicamentos = [];
+                    var fecha = '{{ esquema.getFechaInicio()|date('d-m-Y') }}';
+                    var fechaFinal = '{{ esquema.getFechaFinal()|date('d-m-Y') }}';
+                    var text = '';
+
+                    {% for medicamento in esquema.getMedicamentos() %}
+                        text += '{{ medicamento.nombre~' - ' }}';
+                        medicamentos.push('{{ medicamento.id }}');
+                    {% endfor %}
+                    text = text.substring(0,text.lastIndexOf('-')-1);
+                    $('#esquemasMedicamento tbody ').append('<tr data-id="'+I+'"><td>'+ fecha +'</td><td>'+ fechaFinal +'</td><td>'+ text +'</td><td>' +
+                        '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                        '</td></tr>');
+                    pacienteEsquemas.push({
+                        medicamentos: medicamentos,
+                        fechaInicioTratamiento: fecha,
+                        fechaFinalTratamiento: fechaFinal,
+                    });
+                {% endfor %}
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+            {% if paciente.getMedicamentoEsquemas()|length != 0 %}
+                cargarEsquemasTabla();
+            {% endif %}
+
+            //funcion que agrega un esquema de medicamento y lo visualiza en la tabla
+            $('#agregarBtnEsquemaMedicamento').on('click', function(){
+
+                var fecha =  $("#editFechaInicioTratamiento").val();
+                var fechaFinal =  $("#editFechaFinalTratamiento").val();
+                var text = '';
+                {% if paciente.getMedicamentoEsquemas()|length != 0 %}
+                    var lastFechaInicioTratamiento = pacienteEsquemas[pacienteEsquemas.length - 1]['fechaInicioTratamiento'];
+
+                    if(  lastFechaInicioTratamiento > fecha ){
+                        alertify.alert('<strong>Error: La fecha del esquema de tratamiento debe ser mayor que la del ultimo esquema insertado.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label','Aceptar');
+                        return false;
+                    }
+                {% endif %}
+
+                if(  $('#editMedicamentos').val() == null ){
+                    alertify.alert('<strong>Debe seleccionar medicamentos para agregar un esquema.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }else if(fecha == ''){
+                    alertify.alert('<strong>Debe seleccionar la fecha de inicio del tratamiento.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }else if ( dateDiff($("#editFechaInicioTratamiento").val(), $("#editFechaFinalTratamiento").val() ) > 0 ) {
+                    alertify.alert('<strong>Error: la fecha final no puede ser menor que la fecha inicial.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }else{
+                    var medicamentos = $('#editMedicamentos').val();
+                    $('#ms-editMedicamentos .ms-list .ms-elem-selectable').each(function () {
+                        if($(this).hasClass('ms-selected')){
+
+                            text += $(this).text()+' - ';
+                        }
+                    });
+
+                    text = text.substring(0,text.lastIndexOf('-')-1);
+                    $('#esquemasMedicamento tbody ').append('<tr data-id="'+J+'"><td>'+ fecha +'</td><td>'+ fechaFinal +'</td><td>'+ text +'</td><td>' +
+                        '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                        '</td></tr>');
+                    pacienteEsquemas.push({
+                        medicamentos: medicamentos,
+                        fechaInicioTratamiento: fecha,
+                        fechaFinalTratamiento: fechaFinal,
+                    });
+                    $('[data-toggle="tooltip"]').tooltip();
+                    J++;
+                    $('#ms-editMedicamentos .ms-list .ms-elem-selectable').each(function(){
+                        $(this).css('display', 'list-item').removeClass('ms-selected');
+                    });
+
+                    $('#ms-editMedicamentos .ms-list .ms-elem-selection').each(function(){
+                        $(this).css('display', 'none').addClass('ms-hover').removeClass('ms-selected');
+                    });
+                    $("#editFechaInicioTratamiento").val('');
+                    $("#editFechaFinalTratamiento").val('');
+                }
+            });
+
+            //funcion que elimina un esquema de medicamento del arreglo y de  la tabla
+            $('#esquemasMedicamento tbody').on('click', '.borrar', function () {
+                var row = $(this).parents('tr');
+                id = row.data('id');
+                row.fadeOut();
+                delete pacienteEsquemas[id];
+            });
+
+            $('#btnGuardarTratamiento').click(function () {
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+
+                    idPaciente: '{{ paciente.getId() }}',
+                    pacienteEsquemasMedicamentos: pacienteEsquemas,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("updatePacienteTratamiento") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if (data == 'ok') {
+
+                        alertify.alert('<strong>Los datos modificados han sido guardado correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label', 'Aceptar')
+                    } else {
+                        alertify.alert('<strong>' + data + '</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar')
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

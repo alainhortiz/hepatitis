@@ -1,0 +1,16 @@
+{% macro definir() %}
+    var columnDefs = [
+            { "bSortable": false, "aTargets": [9] },
+            { "name": "provincia", "targets": 0 },
+            { "name": "municipio", "targets": 1 },
+            { "name": "nombre", "targets": 2 },
+            { "name": "primerApellido", "targets": 3 },
+            { "name": "segundoApellido", "targets": 4 },
+            { "name": "carnetIdentidad", "targets": 5 , class: "text-center"},
+            { "name": "fechaDiagnostico", "targets": 6 , class: "text-center"},
+            { "name": "etiologia", "targets": 7 , class: "text-center"},
+            { "name": "tipoHepatitis", "targets": 8 , class: "text-center"},
+            { "sWidth": "12%", "targets": [ 9 ] }
+        ];
+        order = [[0, 'asc'] , [1, 'asc'] , [6, 'asc']];
+{% endmacro %}

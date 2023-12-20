@@ -1,0 +1,1503 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/DataTables-1.10.10/media/css/jquery.dataTables.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    {# Contiene el formulario de adicionar #}
+    <div id="containerFormHijo" style="display:none;margin-top: 20px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12  form-cont">
+                    <h3>Agregar Hijo</h3>
+                    <div id="tabs">
+                        <ul>
+                            <li><a href="#tabs-1">Generales</a></li>
+                            <li><a href="#tabs-2">Vacunas</a></li>
+                            <li><a href="#tabs-3">Laboratorio</a></li>
+                        </ul>
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div id="tabs-1">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="addNombreHijo">Nombre:</label>
+                                            <div>
+                                                <input placeholder="Teclee el nombre" type="text"
+                                                       class="form-control input-sm"
+                                                       id="addNombreHijo" name="addNombreHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="addPrimerApellidoHijo">Primer
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el primer apellido" type="text"
+                                                       class="form-control input-sm" id="addPrimerApellidoHijo"
+                                                       name="addPrimerApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="addSegundoApellidoHijo">Segundo
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el segundo apellido" type="text"
+                                                       class="form-control input-sm" id="addSegundoApellidoHijo"
+                                                       name="addSegundoApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="addSexo">Sexo:</label>
+                                        <select class="form-control input-sm" id="addSexo" name="addSexo">
+                                            <option value="">Seleccione el sexo...</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-top: 20px">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaNacimiento">Fecha de
+                                                Nacimiento</label>
+                                            <input type="text" name="addFechaNacimiento"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaNacimiento">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="padding-top: 25px">
+                                            <label for="addInmunoglobulina">Inmunoglobulina</label>
+                                            <input type="checkbox" id="addInmunoglobulina" name="addInmunoglobulina ">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaInmunoglobulina">Fecha de
+                                                Inmunoglobulina</label>
+                                            <input type="text" name="addFechaInmunoglobulina"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaInmunoglobulina" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaAlta">Fecha de
+                                                Alta</label>
+                                            <input type="text" name="addFechaAlta"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaAlta" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tabs-2">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addVacunaUno">1era Dosis</label>
+                                            <input type="text" name="addVacunaUno"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addVacunaUno">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addVacunaDos">2da Dosis</label>
+                                            <input type="text" name="addVacunaDos"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addVacunaDos">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addVacunaTercera">3ra Dosis</label>
+                                            <input type="text" name="addVacunaTercera"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addVacunaTercera">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addReactivacion">Reactivación</label>
+                                            <input type="text" name="addReactivacion"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addReactivacion">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnVacunas">Agregar
+                                            Esquema de Vacunación
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasVacuna" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>1ra Dosis</th>
+                                            <th>2da Dosis</th>
+                                            <th>3ra Dosis</th>
+                                            <th>Reactivación</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbodyVacuna"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="tabs-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="addPrueba">Prueba</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" id="addPrueba" name="addPrueba">
+                                                <option value="0">Seleccione la prueba...</option>
+                                                {% for prueba in  pruebas %}
+                                                    {% if prueba.menor==1 %}
+                                                        <option value="{{ prueba.id }}">{{ prueba.nombre }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="addResultado">Resultado </label>
+                                        <div class="form-group">
+                                            <select disabled class="f1-last-name form-control" id="addResultado"
+                                                    name="addResultado">
+                                                <option id="inicio2" value="0">Seleccione el resultado...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div id="mostrarValor" style="display: none">
+                                            <label for="addValor">Valor:</label>
+                                            <input type="text" class="form-control input-number"
+                                                   id="addValor" name="addValor">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaPrueba">Fecha realizada</label>
+                                            <input type="text" name="addFechaPrueba"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaPrueba">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnPruebas">Agregar
+                                            Prueba
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasPrueba" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>Prueba</th>
+                                            <th>Valor</th>
+                                            <th>Resultado</th>
+                                            <th>Fecha</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbodyPrueba"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <p class="text-center" style="margin-top: 20px">
+                        <button id="btnGuardar" type="button" class="btn btn-primario">Guardar</button>
+                        <button id="btnSalir" type="button" class="btn btn-primario"> Salir</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# Contiene el formulario de modificar #}
+    <div id="containerModificarHijo" style="display:none;margin-top: 20px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12  form-cont">
+                    <h3>Modificar Hijo</h3>
+                    <div id="tabs2">
+                        <ul>
+                            <li><a href="#tabs2-1">Generales</a></li>
+                            <li><a href="#tabs2-2">Vacunas</a></li>
+                            <li><a href="#tabs2-3">Laboratorio</a></li>
+                        </ul>
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div id="tabs2-1">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="editNombreHijo">Nombre:</label>
+                                            <div>
+                                                <input placeholder="Teclee el nombre" type="text"
+                                                       class="form-control input-sm"
+                                                       id="editNombreHijo" name="editNombreHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="editPrimerApellidoHijo">Primer
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el primer apellido" type="text"
+                                                       class="form-control input-sm" id="editPrimerApellidoHijo"
+                                                       name="editPrimerApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="editSegundoApellidoHijo">Segundo
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el segundo apellido" type="text"
+                                                       class="form-control input-sm" id="editSegundoApellidoHijo"
+                                                       name="editSegundoApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="editSexo">Sexo:</label>
+                                        <select class="form-control input-sm" id="editSexo" name="editSexo">
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-top: 20px">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaNacimiento">Fecha de
+                                                Nacimiento</label>
+                                            <input type="text" name="editFechaNacimiento"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaNacimiento">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="padding-top: 25px">
+                                            <label for="editInmunoglobulina">Inmunoglobulina</label>
+                                            <input type="checkbox" id="editInmunoglobulina" name="editInmunoglobulina ">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaInmunoglobulina">Fecha de
+                                                Inmunoglobulina</label>
+                                            <input type="text" name="editFechaInmunoglobulina"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaInmunoglobulina" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaAlta">Fecha de
+                                                Alta</label>
+                                            <input type="text" name="editFechaAlta"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaAlta" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tabs2-2">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editVacunaUno">1era Dosis</label>
+                                            <input type="text" name="editVacunaUno"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editVacunaUno">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editVacunaDos">2da Dosis</label>
+                                            <input type="text" name="editVacunaDos"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editVacunaDos">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editVacunaTercera">3ra Dosis</label>
+                                            <input type="text" name="editVacunaTercera"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editVacunaTercera">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editReactivacion">Reactivación</label>
+                                            <input type="text" name="editReactivacion"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editReactivacion">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnEditVacunas" >Agregar
+                                            Esquema de Vacunación
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasEditVacuna" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>1ra Dosis</th>
+                                            <th>2da Dosis</th>
+                                            <th>3ra Dosis</th>
+                                            <th>Reactivación</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="tabs2-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="editPrueba">Prueba</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" id="editPrueba" name="editPrueba">
+                                                <option value="0">Seleccione la prueba...</option>
+                                                {% for prueba in  pruebas %}
+                                                    {% if prueba.menor==1 %}
+                                                        <option value="{{ prueba.id }}">{{ prueba.nombre }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="editResultado">Resultado </label>
+                                        <div class="form-group">
+                                            <select disabled class="f1-last-name form-control" id="editResultado"
+                                                    name="editResultado">
+                                                <option id="inicio" value="0">Seleccione el resultado...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div id="mostrarEditValor" style="display: none">
+                                            <label for="editValor">Valor:</label>
+                                            <input type="text" class="form-control input-number"
+                                                   id="editValor" name="editValor">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaPrueba">Fecha realizada</label>
+                                            <input type="text" name="editFechaPrueba"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaPrueba">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnEditPruebas">Agregar
+                                            Prueba
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasEditPrueba" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>Prueba</th>
+                                            <th>Valor</th>
+                                            <th>Resultado</th>
+                                            <th>Fecha</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <p class="text-center" style="margin-top: 20px">
+                        <button id="btnEditGuardar" type="button" class="btn btn-primario">Guardar</button>
+                        <button id="btnEditSalir" type="button" class="btn btn-primario"> Salir</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# Contiene el datatable del resultado de los hijos #}
+    <div style="margin-top: 20px;">
+        <div class="top-datatable">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-10">
+                        <div class="no-margin">
+                            <a href="{{ path(origen) }}">
+                                <i class="fa fa-arrow-circle-left fa-2x" style="color: #999;padding-right: 20px"
+                                   data-toggle="tooltip" data-placement="bottom"
+                                   title="REGRESAR"></i>
+                            </a>
+                            <h2 class="no-padding" style="color: #999">HIJOS
+                                DE {{ gestante.paciente.nombreCompleto() }} </h2>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="no-margin">
+                            <h2 style="float: right">
+                                <a id="addHijo" href="#"
+                                   data-toggle="tooltip" data-placement="bottom" title="AGREGAR HIJOS"
+                                   style="text-decoration: none; color: #999;">
+                                    <i class="fa fa-plus-square fa-1x"></i>
+                                </a>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row"
+                 style="background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 2px solid #434242;">
+                <div class="col-md-12">
+                    <table id="dataHijo" class="display" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Nombres y Apellidos</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Inmunoglobulina</th>
+                            <th>Fecha</th>
+                            <th>Dosis</th>
+                            <th>Vacunas</th>
+                            <th>Pruebas</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for hijo in hijos %}
+                            <tr data-id="{{ hijo.id }}">
+                                <td>{{ hijo.nombreCompleto }}</td>
+                                <td class="text-center">{{ hijo.fechaNacimiento|date('d-m-Y') == '01-01-0001' ? '' :hijo.fechaNacimiento|date('d-m-Y') }}</td>
+                                <td class="text-center">{{ hijo.inmunoglobulina == 1 ? 'SI' : 'NO' }}</td>
+                                <td class="text-center">{{ hijo.fechainmunoglobulina|date('d-m-Y') == '01-01-0001' ? '' :hijo.fechainmunoglobulina|date('d-m-Y') }}</td>
+                                <td class="text-center">{{ hijo.cantidadDosis }}</td>
+                                {% if hijo.cantidadDosis != 0 %}
+                                    {% set cantidad=0 %}
+                                    {% for vacuna in hijo.hijoVacunas() %}
+                                        {% set cantidad = cantidad + vacuna.cantidadVacunas %}
+                                    {% endfor %}
+                                    <td class="text-center">{{ cantidad }}</td>
+                                {% else %}
+                                    <td class="text-center">0</td>
+                                {% endif %}
+                                <td class="text-center">{{ hijo.cantidadPruebas }}</td>
+                                <td>
+                                    {% if hijo.alta != 1 %}
+                                        <a id="editHijo" href="#" class="btn btn-primary btn-xs edit"><i class="fa fa-pencil "></i> Editar</a>
+                                        <a href="#" class="btn btn-danger btn-xs delete"><i class="fa fa-trash-o "></i> Borrar</a>
+                                    {% else %}
+                                        ALTA
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ include('Pacientes/GestionHijo/modalAddEsquemaVacunas.html.twig') }}
+    {{ include('Pacientes/GestionHijo/modalEditEsquemaVacunas.html.twig') }}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/DataTables-1.10.10/media/js/jquery.dataTables.js') }}"></script>
+    <script src="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/formatoTipos.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/moment.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            function verificarusuario() {
+                {% if not (is_granted("ROLE_EDITOR_ESTADISTICA") or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+
+            verificarusuario();
+
+            $('#dataHijo').DataTable();
+
+{#            {{ include('Pacientes/GestionHijo/addHijoJS.html.twig') }}#}
+{#            {{ include('Pacientes/GestionHijo/editHijoJS.html.twig') }}#}
+
+
+            //--------- Gestión hijos -----------------//
+            {
+
+            $('#btnGuardar').click(function () {
+
+                if ($("#addNombreHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo nombre es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if ($("#addPrimerApellidoHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo primer apellido es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if ($("#addSegundoApellidoHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo segundo apellido es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if ($("#addSexo").val().trim() == '') {
+                    alertify.alert('<strong>El campo sexo es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                if ($("#addFechaNacimiento").val() == '') {
+                    alertify.alert('<strong>Debe seleccionar la fecha de nacimiento.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                if ($('#addInmunoglobulina').prop('checked')) {
+                    if ($("#addFechaInmunoglobulina").val() == '') {
+                        alertify.alert('<strong>Debe seleccionar la fecha de la inmunoglobulina.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                        return false;
+                    }
+                }
+
+                $(".preload").removeClass('hidden');
+
+                var inmunoglobulina = 0;
+                if ($('#addInmunoglobulina').prop('checked')) {
+                    inmunoglobulina = 1;
+                }
+
+                var alta = 0;
+                if ($('#addFechaAlta').val() != '') {
+                    alta = 1;
+                }
+
+                var mat_datos = {
+                    idGestante: {{ gestante.id }},
+                    nombre: $("#addNombreHijo").val(),
+                    primerApellido: $("#addPrimerApellidoHijo").val(),
+                    segundoApellido: $("#addSegundoApellidoHijo").val(),
+                    sexo: $("#addSexo").val(),
+                    inmunoglobulina: inmunoglobulina,
+                    fechaNacimiento: $("#addFechaNacimiento").val(),
+                    fechaInmunoglobulina: $("#addFechaInmunoglobulina").val(),
+                    fechaAlta: $("#addFechaAlta").val(),
+                    alta: alta,
+                    hijosVacunas: hijoVacunas,
+                    hijosPruebas: hijoPruebas,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("insertHijo") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if (data == 'ok') {
+
+                        alertify.alert('<strong>El hijo ha sido insertado correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                            .set('label', 'Aceptar')
+                            .set('onok', function () {
+
+                                window.location.reload();
+                            });
+                    } else {
+                        alertify.alert('<strong>' + data + '</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar')
+                    }
+                });
+            });
+
+            //--------- enviar el formulario -----------------//
+            $('#btnEditGuardar').click(function () {
+
+                if ($("#editNombreHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo nombre es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if ($("#editPrimerApellidoHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo primer apellido es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if ($("#editSegundoApellidoHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo segundo apellido es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                if ($("#editFechaNacimiento").val() == '') {
+                    alertify.alert('<strong>Debe seleccionar la fecha de nacimiento.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                $(".preload").removeClass('hidden');
+
+                var inmunoglobulina = 0;
+                if ($('#editInmunoglobulina').prop('checked')) {
+                    inmunoglobulina = 1;
+                }
+
+                var alta = 0;
+                if ($('#editFechaAlta').val() != '') {
+                    alta = 1;
+                }
+
+                var mat_datos = {
+                    idHijo: idHijoEdit,
+                    nombre: $("#editNombreHijo").val(),
+                    primerApellido: $("#editPrimerApellidoHijo").val(),
+                    segundoApellido: $("#editSegundoApellidoHijo").val(),
+                    sexo: $("#editSexo").val(),
+                    inmunoglobulina: inmunoglobulina,
+                    fechaNacimiento: $("#editFechaNacimiento").val(),
+                    fechaInmunoglobulina: $("#editFechaInmunoglobulina").val(),
+                    fechaAlta: $("#editFechaAlta").val(),
+                    alta: alta,
+                    hijosVacunas: hijosEditVacunas,
+                    hijosPruebas: hijoEditPruebas,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("updateHijo") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if (data == 'ok') {
+
+                        alertify.alert('<strong>El hijo ha sido modificado correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label', 'Aceptar')
+                            .set('onok', function () {
+
+                                window.location.reload();
+                            });
+                    } else {
+                        alertify.alert('<strong>' + data + '</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar')
+                    }
+                });
+            });
+
+            }
+
+            //--------- Add Hijos -----------------//
+            {
+                /*Declaraciones*/
+                $("#addInmunoglobulina  ,  #editInmunoglobulina").checkboxradio();
+                $("#addModalPrimeraDosis,#addModalSegundaDosis,#addModalTerceraDosis,#addModalReactivacion,#addFechaInmunoglobulina , #addFechaNacimiento , #addFechaAlta, #editFechaAlta , #addVacunaUno , #addVacunaDos  , #addVacunaTercera  , #addReactivacion, #addFechaPrueba, #editFechaInmunoglobulina , #editFechaNacimiento , #editVacunaUno , #editVacunaDos  , #editVacunaTercera  , #editReactivacion, #editFechaPrueba").datepicker({
+                    firstDay: 1,
+                    dateFormat: 'dd-mm-yy',
+                    changeMonth: true,
+                    changeYear: true
+                });
+
+                $(function () {
+                    $("#tabs").tabs();
+                    $("#tabs2").tabs();
+                });
+
+                /*  Validaciones  */
+                $('#addInmunoglobulina').on("click", function () {
+
+                    if ($('#addInmunoglobulina').prop('checked')) {
+                        $('#addFechaInmunoglobulina').prop('disabled', false);
+                    } else {
+                        $('#addFechaInmunoglobulina').prop('disabled', true);
+                    }
+                });
+
+                $('#addHijo').on('click', function () {
+                    $('#containerModificarHijo').css("display", "none");
+                    $('#containerFormHijo').css("display", "block");
+                });
+
+                $('#btnSalir').on('click', function () {
+                    $('#containerFormHijo').css("display", "none");
+                });
+
+                $('#btnEditSalir').on('click', function () {
+                    $('#containerModificarHijo').css("display", "none");
+                });
+
+                //relacionar selects
+                $('#addPrueba').on('change', function () {
+                    var html = '';
+                    var prueba = $('#addPrueba').val();
+                    if (prueba == '') {
+                        $("#addResultado").prop('disabled', true);
+                        $("option").remove('.cambioResultado');
+                    } else {
+                        $("option").remove('.cambioResultado');
+                        $("#inicio2").after('<option class="cambioResultado"></option>');
+
+                        {% for resultadoPrueba in  resultadosPruebas %}
+                        var idPrueba = '{{ resultadoPrueba.getPrueba().id }}';
+
+                        if (idPrueba == prueba) {
+                            var id = {{ resultadoPrueba.id }};
+                            var name = '{{ resultadoPrueba.resultadoPrueba }}';
+                            html += '<option class="cambioResultado" value="' + id + '">' + name + '</option>';
+
+                        }
+                        {% endfor %}
+                        $(".cambioResultado").replaceWith(html);
+                    }
+                    var id = '';
+                    var valor = 0;
+                    {% for prueba in pruebas %}
+                    id = '{{ prueba.id }}';
+                    if (id == prueba) {
+                        {% if prueba.valor == 1 %}
+                        valor = 1;
+                        {% endif %}
+                    }
+                    {% endfor %}
+                    if (valor == 1) {
+                        $('#mostrarValor').css("display", "block");
+                    } else {
+                        $('#mostrarValor').css("display", "none");
+                    }
+                });
+
+                //funcion que agrega las vacunas y las visualiza en la tabla de adicionar
+                var hijoVacunas = [];
+                var I = 0;
+                $('#agregarBtnVacunas').on('click', function () {
+
+                    var vacunaPrimera = $("#addVacunaUno").val();
+                    var vacunaSegunda = $("#addVacunaDos").val();
+                    var vacunaTercera = $("#addVacunaTercera").val();
+                    var reactivacion = $("#addReactivacion").val();
+                    var idVacuna = 0;
+
+                    if (vacunaSegunda != '') {
+                        if (!($("#addVacunaDos").val() > $("#addVacunaUno").val())) {
+                            alertify.alert('<strong>Error: la fecha de las 2da Dosis no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                                .set('label', 'Aceptar');
+                            return false;
+                        }
+                    }
+
+                    if (vacunaTercera != '') {
+                        if (!($("#addVacunaTercera").val() > $("#addVacunaUno").val())) {
+                            alertify.alert('<strong>Error: la fecha de las 3ra Dosis no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                                .set('label', 'Aceptar');
+                            return false;
+                        }
+                    }
+
+                    if (reactivacion != '') {
+                        if (!($("#addReactivacion").val() > $("#addVacunaUno").val())) {
+                            alertify.alert('<strong>Error: la fecha de la reactivación no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                                .set('label', 'Aceptar');
+                            return false;
+                        }
+                    }
+
+                    $('#esquemasVacuna tbody').append('<tr data-id="'+I+'"><td id="primera' + I + '">'+ vacunaPrimera +'</td><td id="segunda' + I + '">'+ vacunaSegunda +'</td><td id="tercera' + I + '">'+ vacunaTercera +'</td><td id="reactivacion' + I + '">'+ reactivacion +'</td><td>' +
+                        '<span class="btn btn-primary btn-xs editar"><i class="fa fa-pencil "></i> Editar</span>      ' +
+                        '<span class="btn btn-danger btn-xs borrar" ><i class="fa fa-trash-o "></i> Borrar</span>' +
+                        '</td></tr>');
+                    hijoVacunas.push({
+                        vacunaPrimera: vacunaPrimera,
+                        vacunaSegunda: vacunaSegunda,
+                        vacunaTercera: vacunaTercera,
+                        reactivacion: reactivacion,
+                    });
+                    I++;
+
+                    //desactivando el boton de agregar un nuevo esquema  de vacunacion si el ultimo esquema no esta completo
+                    if(hijoVacunas[hijoVacunas.length - 1].vacunaPrimera == ''
+                        || hijoVacunas[hijoVacunas.length - 1].vacunaSegunda == ''
+                        || hijoVacunas[hijoVacunas.length - 1].vacunaTercera == ''
+                        || hijoVacunas[hijoVacunas.length - 1].reactivacion == '')
+                    {
+                        $('#agregarBtnVacunas').prop("disabled", true);
+                    }
+
+                    $("#addVacunaUno").val('');
+                    $("#addVacunaDos").val('');
+                    $("#addVacunaTercera").val('');
+                    $("#addReactivacion").val('');
+
+                });
+
+                //funcion que carga los datos del esquema en la modal
+                var idFila = '';
+                $('#esquemasVacuna tbody').on('click', '.editar', function () {
+                    var row = $(this).parents('tr');
+                    id = row.data('id');
+                    var primera = hijoVacunas[id].vacunaPrimera;
+                    var segunda = hijoVacunas[id].vacunaSegunda;
+                    var tercera = hijoVacunas[id].vacunaTercera;
+                    var reactivacion = hijoVacunas[id].reactivacion;
+                    $('#addModalPrimeraDosis').val(primera);
+                    $('#addModalSegundaDosis').val(segunda);
+                    $('#addModalTerceraDosis').val(tercera);
+                    $('#addModalReactivacion').val(reactivacion);
+                    idFila = id;
+                    $('#addEsquemaVacunas').modal('show');
+                });
+
+                //funcion que modifica el esquema en el arreglo y en la tabla
+                    $('#maceptarAddEsquemaVacunas').on('click',function () {
+                    hijoVacunas[id].vacunaPrimera = $('#addModalPrimeraDosis').val();
+                    hijoVacunas[id].vacunaSegunda = $('#addModalSegundaDosis').val();
+                    hijoVacunas[id].vacunaTercera = $('#addModalTerceraDosis').val();
+                    hijoVacunas[id].reactivacion = $('#addModalReactivacion').val();
+                    $("#primera"+idFila).html($('#addModalPrimeraDosis').val());
+                    $("#segunda"+idFila).html($('#addModalSegundaDosis').val());
+                    $("#tercera"+idFila).html($('#addModalTerceraDosis').val());
+                    $("#reactivacion"+idFila).html($('#addModalReactivacion').val());
+                    if(hijoVacunas[id].vacunaPrimera != '' && hijoVacunas[id].vacunaSegunda  != '' && hijoVacunas[id].vacunaTercera  != '' && hijoVacunas[id].reactivacion != '')
+                    {
+                        $('#agregarBtnVacunas').prop("disabled", false);
+                    }
+
+                    $('#addEsquemaVacunas').modal('hide');
+                    });
+
+                //funcion que elimina las vacunas del arreglo y de la tabla de editar
+                $('#esquemasVacuna tbody').on('click', '.borrar', function () {
+                    var row = $(this).parents('tr');
+                    id = row.data('id');
+                    row.fadeOut();
+                    delete hijoVacunas[id];
+                    let cant = 0;
+                    let pos = 0;
+                    for (x = 0; x < hijoVacunas.length; x++) {
+                        if(hijoVacunas[x] != null){ cant++; pos = x; }
+                    }
+                    if(cant == 0 || (hijoVacunas[pos].vacunaPrimera != '' && hijoVacunas[pos].vacunaSegunda  != '' && hijoVacunas[pos].vacunaTercera  != '' && hijoVacunas[pos].reactivacion != '') )
+                    { $('#agregarBtnVacunas').prop("disabled", false); }
+                });
+
+                //funcion que agrega la prueba y la visualiza en la tabla de adicionar
+                var hijoPruebas = [];
+                var J = 0;
+                $('#agregarBtnPruebas').on('click', function () {
+
+                    var prueba = $("#addPrueba").val();
+                    var resultado = $("#addResultado").val();
+                    var valor = $("#addValor").val();
+                    var fechaPrueba = $("#addFechaPrueba").val();
+
+                    var mostrarValor = 0;
+                    {% for prueba in pruebas %}
+                    id = '{{ prueba.id }}';
+                    if (id == prueba) {
+                        {% if prueba.valor == 1 %}
+                        mostrarValor = 1;
+                        {% endif %}
+                    }
+                    {% endfor %}
+
+                    if ($('#addPrueba').val() == '0') {
+                        alertify.alert('<strong>Debe seleccionar la prueba realizada.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                    } else if ($('#addResultado').val() == '0') {
+                        alertify.alert('<strong>Debe seleccionar el resultado de la prueba.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                    } else if (mostrarValor == 1 && $('#addValor').val() == '') {
+                        alertify.alert('<strong>Debe introducir un valor para esta prueba.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                        return false;
+                    } else if ($("#addFechaPrueba").val() == '') {
+                        alertify.alert('<strong>Debe seleccionar la fecha de que se realiza la prueba.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                        return false;
+                    } else {
+                        {% for prueba in  pruebas %}
+                        var idPrueba = '{{ prueba.id }}';
+
+                        if (idPrueba == prueba) {
+                            var nombrePrueba = '{{ prueba.nombre }}';
+                        }
+                        {% endfor %}
+
+                        {% for resultadoPrueba in  resultadosPruebas %}
+                        var idResultadoPrueba = '{{ resultadoPrueba.id }}';
+
+                        if (idResultadoPrueba == resultado) {
+                            var nombreResultadoPrueba = '{{ resultadoPrueba.resultadoPrueba }}';
+                        }
+                        {% endfor %}
+
+                        var proteccion = '';
+                        if (valor > 10) {
+                            proteccion = ' protegido';
+                        } else {
+                            proteccion = ' no protegido';
+                        }
+
+                        $('#esquemasPrueba tbody').append('<tr data-id="' + J + '"><td>' + nombrePrueba + '</td><td>' + valor + '</td><td>' + nombreResultadoPrueba + proteccion + '</td><td>' + fechaPrueba + '</td><td>' +
+                            '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                            '</td></tr>');
+                        hijoPruebas.push({
+                            prueba: prueba,
+                            resultado: resultado,
+                            valor: valor,
+                            fechaPrueba: fechaPrueba,
+                        });
+                        J++;
+
+                        if (valor > 10) {
+                            $('#addFechaAlta').prop("disabled", false);
+                        }
+
+                        $("#addPrueba").val('');
+                        $("#addResultado").val('');
+                        $('#mostrarValor').css("display", "none");
+                        $("#addValor").val('');
+                        $("#addFechaPrueba").val('');
+
+                    }
+                });
+                //funcion que elimina la prueba del arreglo y de la tabla de adicionar
+                $('#esquemasPrueba tbody').on('click', '.borrar', function () {
+                    var row = $(this).parents('tr');
+                    id = row.data('id');
+                    row.fadeOut();
+                    delete hijoPruebas[id];
+                });
+
+                //--------Eliminar el hijo------------//
+                $('#dataHijo tbody').on('click', '.delete', function () {
+
+                    var row = $(this).parents('tr');
+
+                    var mat_datos = {idHijo: row.data('id')};
+
+                    alertify.confirm('Basic: false').set('message', 'Seguro que desea eliminar el hijo seleccionado').set('onok', function () {
+
+                        $(".preload").removeClass('hidden');
+
+                        $.ajax({
+                            type: "POST",
+                            dataType: "html",
+                            url: '{{ path("deleteHijo") }}',
+                            data: mat_datos
+                        }).done(function (data) {
+                            $(".preload").addClass('hidden');
+                            if (data == 'ok') {
+
+                                alertify.alert('<strong>El hijo ha sido eliminado correctamente</strong>')
+                                    .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                                    .set('label', 'Aceptar')
+                                    .set('onok', function () {
+
+                                        row.fadeOut();
+                                    });
+                            } else {
+                                alertify.alert('<strong>' + data + '</strong>')
+                                    .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                                    .set('label', 'Aceptar')
+                            }
+                        });
+                    });
+                });
+
+            }
+
+            //--------- Edit Hijos -----------------//
+            {
+                /* Declaraciones */
+                $("#editModalPrimeraDosis , #editModalSegundaDosis , #editModalTerceraDosis , #editModalReactivacion").datepicker({
+                    firstDay: 1,
+                    dateFormat: 'dd-mm-yy',
+                    changeMonth: true,
+                    changeYear: true
+                });
+
+                /*  Validaciones  */
+                $('#editInmunoglobulina').on("click", function () {
+
+                    if ($('#editInmunoglobulina').prop('checked')) {
+                        $('#editFechaInmunoglobulina').prop('disabled', false);
+                    } else {
+                        $('#editFechaInmunoglobulina').val('').prop('disabled', true);
+                    }
+                });
+
+                //relacionar selects
+                $('#editPrueba').on('change', function () {
+                    var html = '';
+                    var prueba = $('#editPrueba').val();
+                    if (prueba == '') {
+                        $("#editResultado").prop('disabled', true);
+                        $("option").remove('.cambioResultado');
+                    } else {
+                        $("option").remove('.cambioResultado');
+                        $("#inicio").after('<option class="cambioResultado"></option>');
+
+                        {% for resultadoPrueba in  resultadosPruebas %}
+                        var idPrueba = '{{ resultadoPrueba.getPrueba().id }}';
+
+                        if (idPrueba == prueba) {
+                            var id = {{ resultadoPrueba.id }};
+                            var name = '{{ resultadoPrueba.resultadoPrueba }}';
+                            html += '<option class="cambioResultado" value="' + id + '">' + name + '</option>';
+
+                        }
+                        {% endfor %}
+                        $(".cambioResultado").replaceWith(html);
+                        $("#editResultado").prop('disabled', false);
+                    }
+                    var id = '';
+                    var valor = 0;
+                    {% for prueba in pruebas %}
+                    id = '{{ prueba.id }}';
+                    if (id == prueba) {
+                        {% if prueba.valor == 1 %}
+                        valor = 1;
+                        {% endif %}
+                    }
+                    {% endfor %}
+                    if (valor == 1) {
+                        $('#mostrarEditValor').css("display", "block");
+                    } else {
+                        $('#mostrarEditValor').css("display", "none");
+                    }
+                });
+
+                //funcion que agrega las vacunas y las visualiza en la tabla de editar
+                var hijosEditVacunas = [];
+                var I = 0;
+                var hijoEditPruebas = [];
+                $('#agregarBtnEditVacunas').on('click', function () {
+
+                    var vacunaPrimera = $("#editVacunaUno").val();
+                    var vacunaSegunda = $("#editVacunaDos").val();
+                    var vacunaTercera = $("#editVacunaTercera").val();
+                    var reactivacion = $("#editReactivacion").val();
+                    var idVacuna = 0;
+
+
+                    if (vacunaPrimera == '' && vacunaSegunda == '' && vacunaTercera == '' && reactivacion == '') {
+                        alertify.alert('<strong>Error: debe seleccionar al menos una vacuna para agregar un esquema de vacunación.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                        return false;
+                    }
+                    if (vacunaSegunda != '') {
+                        if (!($("#editVacunaDos").val() > $("#editVacunaUno").val())) {
+                            alertify.alert('<strong>Error: la fecha de las 2da Dosis no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                                .set('label', 'Aceptar');
+                            return false;
+                        }
+                    }
+
+                    if (vacunaTercera != '') {
+                        if (!($("#editVacunaTercera").val() > $("#editVacunaUno").val())) {
+                            alertify.alert('<strong>Error: la fecha de las 3ra Dosis no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                                .set('label', 'Aceptar');
+                            return false;
+                        }
+                    }
+
+                    if (reactivacion != '') {
+                        if (!($("#editReactivacion").val() > $("#editVacunaUno").val())) {
+                            alertify.alert('<strong>Error: la fecha de la reactivación no puede ser menor o igual que la fecha de la 1ra Dosis.</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                                .set('label', 'Aceptar');
+                            return false;
+                        }
+                    }
+
+                    $('#esquemasEditVacuna tbody').append('<tr data-id="'+I+'"><td id="primera' + I + '">'+ vacunaPrimera +'</td><td id="segunda' + I + '">'+ vacunaSegunda +'</td><td id="tercera' + I + '">'+ vacunaTercera +'</td><td id="reactivacion' + I + '">'+ reactivacion +'</td><td>' +
+                        '<span class="btn btn-primary btn-xs editar"><i class="fa fa-pencil "></i> Editar</span>      ' +
+                        '<span class="btn btn-danger btn-xs borrar" ><i class="fa fa-trash-o "></i> Borrar</span>' +
+                        '</td></tr>');
+                    hijosEditVacunas.push({
+                        vacunaPrimera: vacunaPrimera,
+                        vacunaSegunda: vacunaSegunda,
+                        vacunaTercera: vacunaTercera,
+                        reactivacion: reactivacion,
+                    });
+                    I++;
+
+                    //desactivando el boton de agregar un nuevo esquema  de vacunacion si el ultimo esquema no esta completo
+                    if(hijosEditVacunas[hijosEditVacunas.length - 1].vacunaPrimera == ''
+                        || hijosEditVacunas[hijosEditVacunas.length - 1].vacunaSegunda == ''
+                        || hijosEditVacunas[hijosEditVacunas.length - 1].vacunaTercera == ''
+                        || hijosEditVacunas[hijosEditVacunas.length - 1].reactivacion == '')
+                    {
+                        $('#agregarBtnEditVacunas').prop("disabled", true);
+                    }
+
+                    $("#editVacunaUno").val('');
+                    $("#editVacunaDos").val('');
+                    $("#editVacunaTercera").val('');
+                    $("#editReactivacion").val('');
+                });
+
+                //funcion que elimina las vacunas del arreglo y de la tabla de editar
+                $('#esquemasEditVacuna tbody').on('click', '.borrar', function () {
+                    var row = $(this).parents('tr');
+                    id = row.data('id');
+                    row.fadeOut();
+                    {#hijosEditVacunas.splice(id, 1);#}
+                    delete hijosEditVacunas[id];
+                    let cant = 0;
+                    let pos = 0;
+                    for (x = 0; x < hijosEditVacunas.length; x++) {
+                        if(hijosEditVacunas[x] != null){ cant++; pos = x; }
+                    }
+                    if(cant == 0 || (hijosEditVacunas[pos].vacunaPrimera != '' && hijosEditVacunas[pos].vacunaSegunda  != '' && hijosEditVacunas[pos].vacunaTercera  != '' && hijosEditVacunas[pos].reactivacion != '') )
+                    { $('#agregarBtnEditVacunas').prop("disabled", false); }
+                });
+
+                //funciones para editar un esquema de vacunacion
+                //funcion que carga los datos del esquema en la modal
+                var idFila = '';
+                $('#esquemasEditVacuna tbody').on('click', '.editar', function () {
+                    var row = $(this).parents('tr');
+                    id = row.data('id');
+                    var primera = hijosEditVacunas[id].vacunaPrimera;
+                    var segunda = hijosEditVacunas[id].vacunaSegunda;
+                    var tercera = hijosEditVacunas[id].vacunaTercera;
+                    var reactivacion = hijosEditVacunas[id].reactivacion;
+                    $('#editModalPrimeraDosis').val(primera);
+                    $('#editModalSegundaDosis').val(segunda);
+                    $('#editModalTerceraDosis').val(tercera);
+                    $('#editModalReactivacion').val(reactivacion);
+                    idFila = id;
+                    $('#editEsquemaVacunas').modal('show');
+                });
+
+                //funcion que modifica el esquema en el arreglo y en la tabla
+                $('#maceptarEditEsquemaVacunas').on('click',function () {
+                    {#        alert('editar');#}
+                    hijosEditVacunas[id].vacunaPrimera = $('#editModalPrimeraDosis').val();
+                    hijosEditVacunas[id].vacunaSegunda = $('#editModalSegundaDosis').val();
+                    hijosEditVacunas[id].vacunaTercera = $('#editModalTerceraDosis').val();
+                    hijosEditVacunas[id].reactivacion = $('#editModalReactivacion').val();
+
+                    $("#primera"+idFila).html($('#editModalPrimeraDosis').val());
+                    $("#segunda"+idFila).html($('#editModalSegundaDosis').val());
+                    $("#tercera"+idFila).html($('#editModalTerceraDosis').val());
+                    $("#reactivacion"+idFila).html($('#editModalReactivacion').val());
+                    if(hijosEditVacunas[id].vacunaPrimera != '' && hijosEditVacunas[id].vacunaSegunda  != '' && hijosEditVacunas[id].vacunaTercera  != '' && hijosEditVacunas[id].reactivacion != '')
+                    {
+                        $('#agregarBtnEditVacunas').prop("disabled", false);
+                    }
+
+                    $('#editEsquemaVacunas').modal('hide');
+                });
+
+                //funcion que agrega la prueba y la visualiza en la tabla de editar
+                var hijoPruebas = [];
+                J = 0;
+                $('#agregarBtnEditPruebas').on('click', function () {
+
+                    var prueba = $("#editPrueba").val();
+                    var resultado = $("#editResultado").val();
+                    var valor = $("#editValor").val();
+                    var fechaPrueba = $("#editFechaPrueba").val();
+
+                    var mostrarValor = 0;
+                    {% for prueba in pruebas %}
+                    id = '{{ prueba.id }}';
+                    if (id == prueba) {
+                        {% if prueba.valor == 1 %}
+                        mostrarValor = 1;
+                        {% endif %}
+                    }
+                    {% endfor %}
+
+                    if ($('#editPrueba').val() == '0') {
+                        alertify.alert('<strong>Debe seleccionar la prueba realizada.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                    } else if ($('#editResultado').val() == '0') {
+                        alertify.alert('<strong>Debe seleccionar el resultado de la prueba.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                    } else if (mostrarValor == 1 && $('#editValor').val() == '') {
+                        alertify.alert('<strong>Debe introducir un valor para esta prueba.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                        return false;
+                    } else if ($("#editFechaPrueba").val() == '') {
+                        alertify.alert('<strong>Debe seleccionar la fecha de que se realiza la prueba.</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar');
+                        return false;
+                    } else {
+                        {% for prueba in  pruebas %}
+                        var idPrueba = '{{ prueba.id }}';
+
+                        if (idPrueba == prueba) {
+                            var nombrePrueba = '{{ prueba.nombre }}';
+                        }
+                        {% endfor %}
+
+                        {% for resultadoPrueba in  resultadosPruebas %}
+                        var idResultadoPrueba = '{{ resultadoPrueba.id }}';
+
+                        if (idResultadoPrueba == resultado) {
+                            var nombreResultadoPrueba = '{{ resultadoPrueba.resultadoPrueba }}';
+                        }
+                        {% endfor %}
+
+                        var proteccion = '';
+                        if (valor > 10) {
+                            proteccion = ' protegido';
+                        } else {
+                            proteccion = ' no protegido';
+                        }
+
+                        $('#esquemasEditPrueba tbody').append('<tr data-id="' + J + '"><td>' + nombrePrueba + '</td><td>' + valor + '</td><td>' + nombreResultadoPrueba + proteccion + '</td><td>' + fechaPrueba + '</td><td>' +
+                            '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                            '</td></tr>');
+                        hijoEditPruebas.push({
+                            prueba: prueba,
+                            resultado: resultado,
+                            valor: valor,
+                            fechaPrueba: fechaPrueba,
+                        });
+
+                        if (valor > 10) {
+                            $('#editFechaAlta').prop("disabled", false);
+                        }
+
+                        $("#editPrueba").val('');
+                        $("#editResultado").val('');
+                        $('#mostrarEditValor').css("display", "none");
+                        $("#editValor").val('');
+                        $("#editFechaPrueba").val('');
+
+                    }
+                });
+
+                //funcion que elimina la prueba del arreglo y de  la tabla editar
+                $('#esquemasEditPrueba tbody').on('click', '.borrar', function () {
+                    var row = $(this).parents('tr');
+                    id = row.data('id');
+                    row.fadeOut();
+                    hijoEditPruebas.splice(id, 1);
+                    delete hijoEditPruebas[id];
+                });
+
+                var idHijoEdit = '';
+                var editNombre = '';
+                var editPrimerApellido = '';
+                var editSegundoApellido = '';
+
+                //cargar datos en el formulario de editar
+                $('#dataHijo tbody').on('click', '.edit', function () {
+
+                    var row = $(this).parents('tr');
+                    var idHijo = row.data('id');
+                    var id = '';
+                    var vacunasLimpiar = [];
+                    var pruebasLimpiar = [];
+
+                    {% for hijo in hijos %}
+                    id = '{{ hijo.id }}';
+                    if (id == idHijo) {
+                        $('#editNombreHijo').val('{{ hijo.nombre }}');
+                        $('#editPrimerApellidoHijo').val('{{ hijo.primerApellido }}');
+                        $('#editSegundoApellidoHijo').val('{{ hijo.segundoApellido }}');
+                        $('#editSexo').val('{{ hijo.sexo }}');
+                        {% if hijo.inmunoglobulina == 1 %}
+                        $('#editInmunoglobulina').prop('checked', true);
+                        $('#editInmunoglobulina').button('refresh');
+                        {% else %}
+                        $('#editInmunoglobulina').prop('checked', false);
+                        $('#editInmunoglobulina').button('refresh');
+                        {% endif %}
+                        $('#editFechaNacimiento').val('{{ hijo.fechaNacimiento|date('d-m-Y') == '01-01-0001' ? '' :hijo.fechaNacimiento|date('d-m-Y') }}');
+                        $('#editFechaInmunoglobulina').val('{{ hijo.fechainmunoglobulina|date('d-m-Y') == '01-01-0001' ? '' :hijo.fechainmunoglobulina|date('d-m-Y') }}');
+                        idHijoEdit = idHijo;
+                        editNombre = '{{ hijo.nombre }}';
+                        editPrimerApellido = '{{ hijo.primerApellido }}';
+                        editSegundoApellido = '{{ hijo.segundoApellido }}';
+
+                        $('#esquemasEditVacuna tbody').empty();
+
+                        //Cargar las vacunas
+                        {% if hijo.cantidadDosis != 0 %}
+                        {% for vacuna in hijo.hijoVacunas() %}
+                        var vacunaPrimera = '{{ vacuna.fechaVacunaPrimera()|date('d-m-Y') }}';
+                        var vacunaSegunda = '{{ vacuna.fechaVacunaSegunda == null ? '' :vacuna.fechaVacunaSegunda()|date('d-m-Y') }}';
+                        var vacunaTercera = '{{ vacuna.FechaVacunaTercera == null ? '' :vacuna.FechaVacunaTercera()|date('d-m-Y') }}';
+                        var reactivacion = '{{ vacuna.FechaReactivacion == null ? '' :vacuna.FechaReactivacion()|date('d-m-Y') }}';
+
+                        $('#esquemasEditVacuna tbody').append('<tr data-id="'+I+'"><td id="primera' + I + '">'+ vacunaPrimera +'</td><td id="segunda' + I + '">'+ vacunaSegunda +'</td><td id="tercera' + I + '">'+ vacunaTercera +'</td><td id="reactivacion' + I + '">'+ reactivacion +'</td><td>' +
+                            '<span class="btn btn-primary btn-xs editar"><i class="fa fa-pencil "></i> Editar</span>      ' +
+                            '<span class="btn btn-danger btn-xs borrar" ><i class="fa fa-trash-o "></i> Borrar</span>' +
+                            '</td></tr>');
+
+                        vacunasLimpiar.push({
+                            vacunaPrimera: vacunaPrimera,
+                            vacunaSegunda: vacunaSegunda,
+                            vacunaTercera: vacunaTercera,
+                            reactivacion: reactivacion,
+                        });
+                        I++;
+                        {% endfor %}
+                        {% endif %}
+
+                        //desactivando el boton de agregar un nuevo esquema  de vacunacion si el ultimo esquema no esta completo
+                        if(vacunasLimpiar.length > 0 && (vacunasLimpiar[vacunasLimpiar.length - 1].vacunaPrimera == ''
+                            || vacunasLimpiar[vacunasLimpiar.length - 1].vacunaSegunda == ''
+                            || vacunasLimpiar[vacunasLimpiar.length - 1].vacunaTercera == ''
+                            || vacunasLimpiar[vacunasLimpiar.length - 1].reactivacion == ''))
+                        {
+                            $('#agregarBtnEditVacunas').prop("disabled", true);
+                        }
+
+                        $('#esquemasEditPrueba tbody').empty();
+
+                        //Cargar las pruebas
+                        {% if hijo.cantidadPruebas != 0 %}
+                        {% for pruebaHijo in hijo.hijoPruebas() %}
+                        var idPrueba =  '{{ pruebaHijo.getprueba().id }}';
+                        var prueba =  '{{ pruebaHijo.getprueba().nombre }}';
+                        var idResultado = '{{ pruebaHijo.getresultadoPrueba().id }}';
+                        var resultado = '{{ pruebaHijo.getresultadoPrueba().resultadoPrueba }}';
+                        var valor = '{{ pruebaHijo.valor == null ? '' :pruebaHijo.valor }}';
+                        var fechaPrueba = '{{ pruebaHijo.fecha()|date('d-m-Y') }}';
+
+                        $('#esquemasEditPrueba tbody').append('<tr data-id="'+J+'"><td>'+ prueba +'</td><td>'+ resultado +'</td><td>'+ valor +'</td><td>'+ fechaPrueba +'</td><td>' +
+                            '<span class="glyphicon glyphicon-minus-sign borrar" style="font-size: 25px"  data-toggle="tooltip" data-placement="bottom"  title="Eliminar"></span>' +
+                            '</td></tr>');
+
+                        pruebasLimpiar.push({
+                            prueba: idPrueba,
+                            resultado: idResultado,
+                            valor: valor,
+                            fechaPrueba: fechaPrueba,
+                        });
+                        J++;
+                        {% endfor %}
+                        {% endif %}
+                    }
+                    {% endfor %}
+                    hijosEditVacunas = vacunasLimpiar;
+                    hijoEditPruebas = pruebasLimpiar;
+                    $('#containerFormHijo').css("display", "none");
+                    $('#containerModificarHijo').css("display", "block");
+                });
+            }
+
+        });
+    </script>
+{% endblock %}

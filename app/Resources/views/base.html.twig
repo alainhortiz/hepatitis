@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Hepatitis{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('easyadmin/stylesheet/bootstrap.min.css') }}"/>
+            <link href="{{ asset('easyadmin/stylesheet/principal/font-awesome.min.css') }}" rel="stylesheet">
+            <link href="{{ asset('easyadmin/stylesheet/principal/Hepatitis.css') }}" rel="stylesheet">
+            <link href="{{ asset('easyadmin/stylesheet/principal/inicio.css') }}" rel="stylesheet">
+            <link href="{{ asset('easyadmin/stylesheet/generales/estilos.css') }}" rel="stylesheet">
+            <link rel="stylesheet" href="{{ asset('easyadmin/Alertify/css/alertify.css') }}"/>
+            <link rel="stylesheet" href="{{ asset('easyadmin/Alertify/css/themes/default.css') }}"/>
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('images/LogoHepatitis.png') }}" />
+    </head>
+    <body>
+        {% block nav %}
+            <a class="navbar-brand" href="{{  path('inicio') }}" target="_parent" style="position: relative;z-index: 1"><img src="{{ asset('images/LogoHepatitis.png')}}" style="width: 48px; margin-top: -14px;margin-left: -13px" title="Ir a inicio"></a>
+            <ul id="menu">
+                <li>
+                    <a><i class="fa fa-angellist fa-2x"></i> <strong>Bienvenido: {{ app.user.nombre }} </strong></a>
+                    <ul>
+                        <li><a href="{{ path('passwordForm')}}"><i class="fa fa-meanpath fa-2x"></i>Cambiar Contraseña</a></li>
+                        <li><a href="{{ path('logout') }}"><i class="fa fa-arrow-circle-left fa-2x"></i>Salir</a></li>
+                    </ul>
+                </li>
+                <li><a href="{{ asset('ayuda/manualhepatitis.pdf') }}" target="_parent"><i class="fa fa-lightbulb-o fa-2x"></i> Ayuda</a></li>
+                {% if (is_granted("ROLE_ADMINISTRADOR") and app.user.getNivelAcceso().nivel == 'nacional') or is_granted("ROLE_SUPERUSUARIO") %}
+                <li>
+                    <a href="#"><i class="fa fa-lock fa-2x"></i> Administración</a>
+                    <ul>
+                        <li><a href="{{ path('gestionarUsuarios') }}"><i class="fa fa-user-plus fa-2x"></i> Gestionar Usuarios</a></li>
+                        <li>
+                            <a><i class="fa fa-server fa-2x"></i> Generales</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('gestionarOcupacion') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Ocupación</a></li>
+                                <li><a href="{{ path('gestionarNivelEscolaridad') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Nivel de Escolaridad</a></li>
+                                <li><a href="{{ path('gestionarEstadoCivil') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Estado Civil</a></li>
+                                <li><a href="{{ path('gestionarProvincias') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Provincias</a></li>
+                                <li><a href="{{ path('gestionarMunicipios') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Municipios</a></li>
+                                <li><a href="{{ path('gestionarUnidades') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Unidades</a></li>
+                                <li><a href="{{ path('trazas') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Trazas</a></li>
+                            </ul>                        <li>
+                            <a><i class="fa fa-server fa-2x"></i> Diagnostico</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('gestionarAntecedentePatologico') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Antecedentes Patológicos</a></li>
+                                <li><a href="{{ path('gestionarEtiologia') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Etiología</a></li>
+                                <li><a href="{{ path('gestionarTiposHepatitis') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Tipos de Hepatitis</a></li>
+                                <li><a href="{{ path('gestionarEstadiosHepatitis') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Estadíos de Hepatitis</a></li>
+                                <li><a href="{{ path('gestionarFormaInfeccion') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Formas de Infección</a></li>
+                                <li><a href="{{ path('gestionarGrupoVulnerable') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Grupos Vulnerables</a></li>
+                                <li><a href="{{ path('gestionarFuentePesquisa') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Fuentes de Pesquisa</a></li>
+                                <li><a href="{{ path('gestionarMotivoFuentePesquisa') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Motivos de Fuentes de Pesquisa</a></li>
+                                <li><a href="{{ path('gestionarCoinfeccion') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Coinfecciones</a></li>
+                                <li><a href="{{ path('gestionarVacuna') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Vacunas</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><i class="fa fa-server fa-2x"></i> Laboratorio</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('gestionarPrueba') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Pruebas</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><i class="fa fa-server fa-2x"></i> Tratamiento</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('gestionarEvolucionClinica') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Evolución Clínica</a></li>
+                                <li><a href="{{ path('gestionarVacuna') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Vacunas</a></li>
+                                <li><a href="{{ path('gestionarMedicamentos') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Medicamentos</a></li>
+                                <li><a href="{{ path('gestionarCausaFallecimiento') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Causa de Fallecimiento</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a><i class="fa fa-server fa-2x"></i> Estadísticas</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('gestionarTotalPoblacion') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>
+                                        Total de Población</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+                <li><a><i class="fa fa-bar-chart fa-2x"></i> Estadísticas</a>
+                    <ul>
+                        <li><a href="#"><i class="fa fa-file-pdf-o fa-2x"></i> Reportes</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('formEtiologia') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos por etiologia</a></li>
+                                <li><a href="{{ path('formHemodialisis') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos de hemodiálisis</a></li>
+                                <li><a href="{{ path('formSexo') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos por sexo</a></li>
+                                <li><a href="{{ path('formEvolucionClinica') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos por evolución clínica</a></li>
+                                <li><a href="{{ path('formCoinfeccion') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Asociados a coinfecciones</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#"><i class="fa fa-pie-chart fa-2x"></i> Gráficos</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('graficoHemodialisis') }}"><i class="fa fa-area-chart fa-2x"></i> Hemodiálisis</a></li>
+                                <li><a href="{{ path('graficoProvincias') }}"><i class="fa fa-area-chart fa-2x"></i> Provincias</a></li>
+                                <li><a href="{{ path('graficoTasas') }}"><i class="fa fa-area-chart fa-2x"></i> Tasas</a></li>
+                                <li><a href="{{ path('graficoMortalidad') }}"><i class="fa fa-area-chart fa-2x"></i> Mortalidad</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#"><i class="fa fa-file-excel-o fa-2x"></i> Exportaciones</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('excelExportacionGeneral') }}"><i class="fa fa-download fa-2x"></i> General</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#"><i class="fa fa-file-text-o fa-2x"></i> Listados</a>
+                            <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                                <li><a href="{{ path('listadoGeneralPacientes') }}"><i class="fa fa-file-text-o fa-2x"></i> General</a></li>
+                                <li><a href="{{ path('listadoGestantes') }}"><i class="fa fa-file-text-o fa-2x"></i> Gestantes</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="#"><i class="fa fa-blind fa-2x"></i> Pacientes</a>
+                    <ul>
+                        <li><a href="{{ path('gestionarPacientes') }}"><i class="fa fa-address-book-o fa-2x"></i> Gestionar Pacientes</a></li>
+                        {#<li><a href="#"><i class="fa fa-search fa-2x"></i> Localizar Pacientes</a></li>#}
+                        <li><a href="{{ path('gestionarTodosHijos') }}"><i class="fa fa-street-view fa-2x"></i> Seguimiento de los niños</a></li>
+                    </ul>
+                </li>
+                <li><a href="{{  path('inicio') }}"><i class="fa fa-home fa-2x"></i> Inicio</a></li>
+            </ul>
+        {% endblock %}
+        <div id="FlexContainer1" style="min-height: 87vh ">
+        {% block body %}{% endblock %}
+        </div>
+        {% block footer %}
+            <footer id="FlexContainer2" style="border-top: 4px solid #959494" >
+                <div class="row" id="wb_Text1">
+                    <div class="col-lg-4">
+                        <img src="{{ asset('images/minsap.png') }}" style="width: 35%">
+                    </div>
+                    <div class="col-lg-4" id="wb_Text1">
+                        <p style="color:#FFFFFF;font-family:Arial;font-size:13px;"><strong>Copyright 2019<br>Todos los derechos reservados</strong></p>
+                    </div>
+                    <div class="col-lg-4">
+                        <img src="{{ asset('images/logo2.png') }}" style="width: 35%">
+                    </div>
+                </div>
+            </footer>
+        {% endblock %}
+        {% block javascripts %}
+            <script src="{{ asset('easyadmin/javascript/jquery.min.js') }}"></script>
+            <script src="{{ asset('easyadmin/javascript/bootstrap.min.js') }}"></script>
+            <script src="{{ asset('easyadmin/javascript/principal/wwb14.min.js') }}"></script>
+            <script src="{{ asset('easyadmin/Alertify/alertify.js') }}"></script>
+            <script>
+                alertify.confirm()
+                    .setting({
+                        'defaultFocus':'cancel',
+                        'labels':{ok:'Aceptar', cancel:'Cancelar'},
+                        'modal':true
+                    }).setHeader('<span class="glyphicon glyphicon-alert" style="font-size: 20px"></span>' +
+                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>');
+                $('[data-toggle="tooltip"]').tooltip();
+            </script>
+        {% endblock %}
+    </body>
+</html>

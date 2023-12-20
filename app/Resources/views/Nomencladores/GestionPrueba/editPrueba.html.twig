@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3 form-cont">
+                <h3>Editar Prueba</h3>
+
+                <form style="margin-top: 20px; border-bottom: 1px solid #393939; padding-bottom: 15px">
+                    <div class="form-group">
+                        <label class="sr-only" for="editTipoEtiologia">Etiología</label>
+                        <div class="form-group">
+                            <select class="f1-last-name form-control" id="editTipoEtiologia"
+                                    name="editTipoEtiologia">
+                                <option value="{{ prueba.tipoEtiologia.id }}">{{ prueba.tipoEtiologia.nombre }}</option>
+                                {% for tipoEtiologia in  tiposEtiologias %}
+                                    <option value="{{ tipoEtiologia.id }}">{{ tipoEtiologia.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" class="form-control" value="{{ prueba.nombre }}" id="nombre">
+                    <div class="form-group" style="padding-top: 20px">
+                        <label for="editValor">Contiene valor</label>
+                        <input type="checkbox" id="editValor" name="editValor">
+                    </div>
+                </form>
+                <p class="text-center" style="margin-top: 20px">
+                    <button id="btnGuardar" type="button" class="btn btn-primario">Guardar</button>
+                    <button id="btnSalir" type="button" class="btn btn-primario"> Salir </button>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.js') }}"></script>
+    <script>
+        $(document).ready(function()
+        {
+            function verificarusuario(){
+                {% if not ((is_granted("ROLE_ADMINISTRADOR") and  app.user.getNivelAcceso().nivel == 'nacional')  or is_granted("ROLE_SUPERUSUARIO")) %}
+                    window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+            verificarusuario();
+
+            $('#editValor').checkboxradio();
+
+            {% if prueba.valor == 1 %}
+               $('#editValor').prop('checked', true);
+               $('#editValor').button('refresh');
+            {% endif %}
+
+            //--------- abandonar el formulario -----------------
+            $('#btnSalir').on('click', function ()
+            {
+                window.location.href = "{{ path('gestionarPrueba') }}";
+
+            });
+
+            //--------- enviar el formulario -----------------
+            $('#btnGuardar').click(function () {
+
+                if($("#nombre").val().trim() == ''){
+                    alertify.alert('<strong>El campo nombre es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+                $(".preload").removeClass('hidden');
+
+                var valor = 0;
+                if ($('#editValor').prop('checked')) {
+                    valor = 1;
+                }
+
+                var mat_datos = {
+                    idPrueba: {{ prueba.getId() }},
+                    nombre: $("#nombre").val(),
+                    valor: valor,
+                    tipoEtiologia: $("#editTipoEtiologia").val(),
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("updatePrueba") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if(data == 'ok'){
+
+                        alertify.alert('<strong>La prueba ha sido modificada correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label','Aceptar')
+                            .set('onok', function(){
+                                window.location.href = "{{ path('gestionarPrueba') }}";
+                            });
+                    }else{
+                        alertify.alert('<strong>'+ data +'</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label','Aceptar')
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/DataTables-1.10.10/media/css/jquery.dataTables.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12  form-cont">
+                    <h3>Reporte por el sexo del paciente</h3>
+                    <form style="margin-top: 20px; border-bottom: 1px solid #393939; padding-bottom: 15px">
+                        <fieldset>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="fechaInicial">Fecha Inicial</label>
+                                        <input type="text" name="fechaInicial" placeholder="Seleccione la fecha inicial..." class="f1-last-name form-control" id="fechaInicial">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label  for="fechaFinal">Fecha Final</label>
+                                        <input type="text" name="fechaFinal" placeholder="Seleccione la fecha final..." class="f1-last-name form-control" id="fechaFinal">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label  for="sexo">Sexo</label>
+                                    <div class="form-group">
+                                        <select class="f1-last-name form-control" id="sexo" name="sexo">
+                                            <option value="0">Seleccione el sexo...</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                {% if(app.user.getNivelAcceso().nivel == 'nacional') %}
+                                    <div class="col-md-4">
+                                        <label  for="reportProvinciaResidencia">Provincia</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" id="reportProvinciaResidencia" name="reportProvinciaResidencia">
+                                                <option value="0">Seleccione la provincia...</option>
+                                                {% for provincia in  provincias %}
+                                                    <option value="{{ provincia.id }}">{{ provincia.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label  for="reportMunicipioResidencia">Municipio</label>
+                                        <div class="form-group">
+                                            <select disabled class="f1-last-name form-control" id="reportMunicipioResidencia" name="reportMunicipioResidencia">
+                                                <option id="inicio" value="0">Seleccione el municipio...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% elseif(app.user.getNivelAcceso().nivel == 'provincial') %}
+                                    <div class="col-md-4">
+                                        <label  for="reportProvinciaResidencia">Provincia</label>
+                                        <div class="form-group">
+                                            <div>
+                                                <strong class="form-control">{{ app.user.getUnidad().getMunicipio().getProvincia().nombre }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label  for="reportMunicipioResidencia">Municipio</label>
+                                        <div class="form-group">
+                                            <select disabled class="f1-last-name form-control" id="reportMunicipioResidencia" name="reportMunicipioResidencia">
+                                                <option  value="0">Seleccione el municipio...</option>
+                                                {% for municipio in  municipios %}
+                                                    {% if municipio.getProvincia().codigo == app.user.getUnidad().getMunicipio().getProvincia().codigo %}
+                                                        <option value="{{ municipio.id }}">{{ municipio.nombre }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-4">
+                                        <label  for="reportProvinciaResidencia">Provincia</label>
+                                        <div class="form-group">
+                                            <div>
+                                                <strong class="form-control">{{ app.user.getUnidad().getMunicipio().getProvincia().nombre }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label  for="reportMunicipioResidencia">Municipio</label>
+                                        <div class="form-group">
+                                            <div>
+                                                <strong class="form-control">{{ app.user.getUnidad().getMunicipio().nombre }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                    </form>
+                    <p class="text-center" style="margin-top: 20px">
+                        <button disabled id="btnBuscar" type="button" class="btn btn-primario">Buscar</button>
+                        <button id="btnSalir" type="button" class="btn btn-primario"> Salir </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="containerResultado" style="display:none;margin-top: 20px"></div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/DataTables-1.10.10/media/js/jquery.dataTables.js') }}"></script>
+    <script src="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.js') }}"></script>
+    <!-- mis js -->
+    <script src="{{ asset('easyadmin/javascript/formatoTipos.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/moment.js') }}"></script>
+    <script>
+        $(document).ready(function()
+        {
+            function verificarusuario(){
+                {% if not (is_granted("ROLE_VISUALIZADOR") or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+            verificarusuario();
+
+            //---------declaraciones--------
+            var hoy = '{{ "now"|date('d-m-Y') }}';
+            $( "#fechaInicial , #fechaFinal " ).datepicker({
+                firstDay: 1,
+                dateFormat:'dd-mm-yy',
+                changeMonth: true,
+                changeYear: true,
+                maxDate: hoy
+            });
+
+            //--------- abandonar el formulario -----------------
+            $('#btnSalir').on('click', function ()
+            {
+                window.location.href = "{{ path('inicio') }}";
+
+            });
+            //----------Relacionar selects --------------------------
+            $('#reportProvinciaResidencia').on('change', function () {
+                var html = '';
+                var provincia = $('#reportProvinciaResidencia').val();
+                if (provincia == '0') {
+                    $("#reportMunicipioResidencia").prop('disabled' , true);
+                    $("option").remove('.cambioMunicipioResidencia');
+                }else {
+                    $("option").remove('.cambioMunicipioResidencia');
+                    $("#inicio").after('<option class="cambioMunicipioResidencia"></option>');
+
+                    {% for municipio in  municipios %}
+                        var idProvincia = '{{ municipio.getProvincia().id }}';
+
+                        if (idProvincia == provincia) {
+                            var id = {{ municipio.id }};
+                            var name = '{{ municipio.nombre }}';
+                            html += '<option class="cambioMunicipioResidencia" value="' + id + '">' + name + '</option>';
+
+                        }
+                    {% endfor %}
+                    $(".cambioMunicipioResidencia").replaceWith(html);
+                    $("#reportMunicipioResidencia").prop('disabled' , false);
+                }
+            });
+
+            $('#sexo').on('change' , function () {
+
+                if($(this).val() != '0'){ $('#btnBuscar').prop('disabled' , false); }
+                else { $('#btnBuscar').prop('disabled' , true);}
+            });
+
+            //Boton buscar
+            $('#btnBuscar').on("click", function(){
+
+                if ( dateDiff($("#fechaInicial").val(), $("#fechaFinal").val() ) > 0 ) {
+                    alertify.alert('<strong>Error: la fecha final no puede ser menor que la fecha inicial.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                var municipio = $("#reportMunicipioResidencia").val();
+                var provincia = $("#reportProvinciaResidencia").val();
+
+                {% if app.user.getNivelAcceso().nivel == 'Provincial' or app.user.getNivelAcceso().nivel == 'Municipal' %}
+                    provincia = '{{ app.user.getUnidad().getMunicipio().getProvincia().id }}';
+                {% endif %}
+                {% if app.user.getNivelAcceso().nivel == 'Municipal' %}
+                    municipio = '{{ app.user.getUnidad().getMunicipio().id }}';
+                {% endif %}
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+
+                    fechaInicial: $("#fechaInicial").val(),
+                    fechaFinal: $("#fechaFinal").val(),
+                    sexo: $("#sexo").val(),
+                    provincia: provincia,
+                    municipio: municipio,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("reportSexo") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if(data.indexOf('dataPaciente') != -1){
+
+                        $('#containerResultado').replaceWith(data);
+                        $('#containerResultado').css("display","block");
+                        $('#dataPaciente').DataTable();
+
+                    }else{
+                        alertify.alert('<strong>'+ data +'</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label','Aceptar')
+                    }
+                });
+            });
+
+        });
+    </script>
+{% endblock %}

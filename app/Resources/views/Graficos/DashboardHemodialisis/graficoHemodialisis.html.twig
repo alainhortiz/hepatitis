@@ -1,0 +1,1007 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/stylesheet/Graficos/GraficosStyle.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+
+    {# Graficos #}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <div class="panel-title"><strong>Comportamiento de la hemodiálisis en la hepatitis B y hepatitis C</strong></div>
+
+                        <div class="panel-options">
+                            <a href="#" class="fa-backward hidden" id="btnAtrasProvincia" name="btnAtrasProvincia"> Regresar a total nacional</a>
+                            {#<button type="button" class="fa-backward hidden" id="btnAtras" name="btnAtras"> Regresar a total nacional</button>#}
+                            <a href="#" id="MostrarFecha" data-toggle="tooltip" data-placement="bottom"
+                               title="Seleccionar rango de fecha" style="text-decoration: none; color: #141414;">
+                                <i class="fa fa-calendar fa-2x"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="total" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <div class="panel-title"><strong>Pacientes por sexo </strong></div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="sexo" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <div class="panel-title"><strong>Pacientes con coinfecciones </strong></div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="coinfeccion" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ include('Graficos/DashboardHemodialisis/modalFechaHemodialisis.html.twig') }}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/highcharts.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/drilldown.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/exporting.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/export-data.js') }}"></script>
+    <script src="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.js') }}"></script>
+    <!-- mis js -->
+    <script src="{{ asset('easyadmin/javascript/formatoTipos.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/moment.js') }}"></script>
+    <script>
+
+        $(document).ready(function () {
+            function verificarusuario() {
+                {% if not (is_granted("ROLE_VISUALIZADOR") or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+
+            verificarusuario();
+
+            //---------declaraciones--------//
+
+            var hoy = '{{ "now"|date('d-m-Y') }}';
+            $("#fechaInicial , #fechaFinal ").datepicker({
+                firstDay: 1,
+                dateFormat: 'dd-mm-yy',
+                changeMonth: true,
+                changeYear: true,
+                maxDate: hoy
+            });
+
+            $('#MostrarFecha').on('click', function () {
+                $('#RangoFecha').modal('show');
+            });
+
+            $('#btnAtrasProvincia').on("click", function(){
+                totalHemodialisis();
+                sexoHepatitis();
+                coinfeccionesHepatitis();
+                $('#btnAtrasProvincia').addClass('hidden');
+            });
+
+            /* Serie general */
+            var arraydrilldown = [];
+            {% for etiologia in etiologias %}
+            arraydrilldown.push({
+                name: '{{ etiologia['etiologia'] }}',
+                {% if (etiologia['etiologia'] == 'Hepatitis B') %}
+                   color: '#00C0C0',
+                {% else %}
+                   color: '#006980',
+                {% endif %}
+                y: parseInt('{{ etiologia['cant'] }}'),
+                drilldown: '{{ etiologia['etiologia'] }}'
+            });
+            {% endfor %}
+
+            var arrayhemodialisis = [];
+            {% for hemodialis in hemodialisis %}
+            arrayhemodialisis.push({
+                name: '{{ hemodialis['etiologia'] }}',
+                {% if (hemodialis['etiologia'] == 'Hepatitis B') %}
+                    color: '#0080FF',
+                {% else %}
+                    color: '#004AFF',
+                {% endif %}
+                y: parseInt('{{ hemodialis['cant'] }}'),
+                {% if (hemodialis['etiologia'] == 'Hepatitis B') %}
+                   drilldown: 'Hemodialisis B',
+                {% else %}
+                   drilldown: 'Hemodialisis C'
+                {% endif %}
+            });
+            {% endfor %}
+
+            /*  Series Drilldown */
+            var arrayTiposProvHepatitisB = [];
+            {% for tipo in tiposProvHepatitisB %}
+            var provincia = '{{ tipo['provincia'] }}';
+            var cantidad = parseInt('{{ tipo['cant'] }}');
+            arrayTiposProvHepatitisB.push([provincia, cantidad]);
+            {% endfor %}
+
+            var arrayTiposProvHepatitisC = [];
+            {% for tipo in tiposProvHepatitisC %}
+            var provincia = '{{ tipo['provincia'] }}';
+            var cantidad = parseInt('{{ tipo['cant'] }}');
+            arrayTiposProvHepatitisC.push([provincia, cantidad]);
+            {% endfor %}
+
+            var arrayTiposProvHemodialisisB = [];
+            {% for tipo in tiposProvHemodialisisB %}
+            var provincia = '{{ tipo['provincia'] }}';
+            var cantidad = parseInt('{{ tipo['cant'] }}');
+            arrayTiposProvHemodialisisB.push([provincia, cantidad]);
+            {% endfor %}
+
+            var arrayTiposProvHemodialisisC = [];
+            {% for tipo in tiposProvHemodialisisC %}
+            var provincia = '{{ tipo['provincia'] }}';
+            var cantidad = parseInt('{{ tipo['cant'] }}');
+            arrayTiposProvHemodialisisC.push([provincia, cantidad]);
+            {% endfor %}
+
+            /* Serie Sexo */
+            var arraySexo = [];
+            {% for sexo in sexos %}
+            var sexo = '{{ sexo['sexo'] }}';
+            var cantidad = parseInt('{{ sexo['cant'] }}');
+            arraySexo.push([sexo, cantidad]);
+            {% endfor %}
+
+            var arraySexoProvHepatitisB = [];
+            {% for sexo in sexosProvHepatitisB %}
+            var sexo = '{{ sexo['sexo'] }}';
+            var cantidad = parseInt('{{ sexo['cant'] }}');
+            arraySexoProvHepatitisB.push([sexo, cantidad]);
+            {% endfor %}
+
+            var arraySexoProvHepatitisC = [];
+            {% for sexo in sexosProvHepatitisC %}
+            var sexo = '{{ sexo['sexo'] }}';
+            var cantidad = parseInt('{{ sexo['cant'] }}');
+            arraySexoProvHepatitisC.push([sexo, cantidad]);
+            {% endfor %}
+
+            var arraySexoProvHemodialisisB = [];
+            {% for sexo in sexosProvHemodialisisB %}
+            var sexo = '{{ sexo['sexo'] }}';
+            var cantidad = parseInt('{{ sexo['cant'] }}');
+            arraySexoProvHemodialisisB.push([sexo, cantidad]);
+            {% endfor %}
+
+            var arraySexoProvHemodialisisC = [];
+            {% for sexo in sexosProvHemodialisisC %}
+            var sexo = '{{ sexo['sexo'] }}';
+            var cantidad = parseInt('{{ sexo['cant'] }}');
+            arraySexoProvHemodialisisC.push([sexo, cantidad]);
+            {% endfor %}
+
+            /* Serie Coinfeccion */
+            var arrayCoinfeccion = [];
+            {% for coinfeccion in coinfecciones %}
+            var coinfeccion = '{{ coinfeccion['coinfeccion'] }}';
+            var cantidad = parseInt('{{ coinfeccion['cant'] }}');
+            arrayCoinfeccion.push([coinfeccion, cantidad]);
+            {% endfor %}
+
+            var arrayCoinfeccionesProvHepatitisB = [];
+            {% for coinfeccion in coinfeccionesProvHepatitisB %}
+            var coinfeccion = '{{ coinfeccion['coinfeccion'] }}';
+            var cantidad = parseInt('{{ coinfeccion['cant'] }}');
+            arrayCoinfeccionesProvHepatitisB.push([coinfeccion, cantidad]);
+            {% endfor %}
+
+            var arrayCoinfeccionesProvHepatitisC = [];
+            {% for coinfeccion in coinfeccionesProvHepatitisC %}
+            var coinfeccion = '{{ coinfeccion['coinfeccion'] }}';
+            var cantidad = parseInt('{{ coinfeccion['cant'] }}');
+            arrayCoinfeccionesProvHepatitisC.push([coinfeccion, cantidad]);
+            {% endfor %}
+
+            var arrayCoinfeccionesProvHemodialisisB = [];
+            {% for coinfeccion in coinfeccionesProvHemodialisisB %}
+            var coinfeccion = '{{ coinfeccion['coinfeccion'] }}';
+            var cantidad = parseInt('{{ coinfeccion['cant'] }}');
+            arrayCoinfeccionesProvHemodialisisB.push([coinfeccion, cantidad]);
+            {% endfor %}
+
+            var arrayCoinfeccionesProvHemodialisisC = [];
+            {% for coinfeccion in coinfeccionesProvHemodialisisC %}
+            var coinfeccion = '{{ coinfeccion['coinfeccion'] }}';
+            var cantidad = parseInt('{{ coinfeccion['cant'] }}');
+            arrayCoinfeccionesProvHemodialisisC.push([coinfeccion, cantidad]);
+            {% endfor %}
+
+            {% if hayDatosRango == false %}
+                $(".preload").addClass('hidden');
+                alertify.alert('<strong>No existen pacientes con hemodialisis para mostrar en el gráfico</strong>')
+                    .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Información</h4>')
+                    .set('label', 'Aceptar')
+                    .set('onok', function(){
+
+                            window.location.href = "{{ path('inicio') }}";
+                        });
+            {% endif %}
+
+            //Boton buscar por rango de fecha
+            $('#maceptar').on("click", function () {
+
+                if (dateDiff($("#fechaInicial").val(), $("#fechaFinal").val()) > 0) {
+                    alertify.alert('<strong>Error: la fecha final no puede ser menor que la fecha inicial.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                $(".preload").removeClass('hidden');
+
+                $('#formFecha').submit();
+
+            });
+
+            totalHemodialisis();
+            sexoHepatitis();
+            coinfeccionesHepatitis();
+
+            function totalHemodialisis() {
+                Highcharts.chart('total', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Total de pacientes'
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y:.0f}'
+                            }
+                        }
+                    },
+
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.0f}</b> pacientes<br/>'
+                    },
+
+                    "series": [
+                        {
+                            "name": "Total Nacional",
+                            "colorByPoint": true,
+                            "data": arraydrilldown,
+                            events: {
+                                click: function (oEvent) {
+                                    if (oEvent.point.name=='Hepatitis B') {
+                                        totalProvinciaHepatitisB();
+                                        sexoProvHepatitisB();
+                                        coinfeccionesProvHepatitisB();
+                                    } else {
+                                        totalProvinciaHepatitisC();
+                                        sexoProvHepatitisC();
+                                        coinfeccionesProvHepatitisC();
+                                    }
+                                    $('#btnAtrasProvincia').removeClass('hidden');
+
+                                }
+                            }
+                        },
+                        {
+                            "name": "Total Hemodialisis",
+                            "colorByPoint": true,
+                            "data": arrayhemodialisis,
+                            events: {
+                                click: function (oEvent) {
+                                    if (oEvent.point.name=='Hepatitis B') {
+                                        totalProvinciaHemodialisisB();
+                                        sexoProvHemodialisisB();
+                                        coinfeccionesProvHemodialisisB();
+                                    } else {
+                                        totalProvinciaHemodialisisC();
+                                        sexoProvHemodialisisC();
+                                        coinfeccionesProvHemodialisisC();
+                                    }
+                                    $('#btnAtrasProvincia').removeClass('hidden');
+
+                                }
+                            }
+                        },
+                    ],
+
+                });
+            }
+
+            function totalProvinciaHepatitisB() {
+                Highcharts.chart('total', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Total de pacientes'
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y:.0f}'
+                            }
+                        }
+                    },
+
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.0f}</b> pacientes<br/>'
+                    },
+
+                        "series": [
+                            {
+                                "name": "Hepatitis B",
+                                "id": "Hepatitis B",
+                                "color": '#00C0C0',
+                                "data": arrayTiposProvHepatitisB,
+                                events: {
+                                    click: function (oEvent) {
+                                        alert('categoria: ' + oEvent.point.name + ', value: ' + oEvent.point.y);
+                                        $('#btnAtras').addClass('hidden');
+                                    }
+                                }
+                            }
+                        ]
+
+                });
+            }
+
+            function totalProvinciaHepatitisC() {
+                Highcharts.chart('total', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Total de pacientes'
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y:.0f}'
+                            }
+                        }
+                    },
+
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.0f}</b> pacientes<br/>'
+                    },
+
+                    "series": [
+                        {
+                            "name": "Hepatitis C",
+                            "id": "Hepatitis C",
+                            "color": '#006980',
+                            "data": arrayTiposProvHepatitisC,
+                            events: {
+                                click: function (oEvent) {
+                                    alert('categoria: ' + oEvent.point.name + ', value: ' + oEvent.point.y);
+                                    $('#btnAtras').addClass('hidden');
+                                }
+                            }
+                        }
+                    ]
+
+                });
+            }
+
+            function totalProvinciaHemodialisisB() {
+                Highcharts.chart('total', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Total de pacientes'
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y:.0f}'
+                            }
+                        }
+                    },
+
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.0f}</b> pacientes<br/>'
+                    },
+
+                        "series": [
+                            {
+                                "name": "Hemodialisis B",
+                                "id": "Hemodialisis B",
+                                "color": '#0080FF',
+                                "data": arrayTiposProvHemodialisisB,
+                                events: {
+                                    click: function (oEvent) {
+                                        alert('categoria: ' + oEvent.point.name + ', value: ' + oEvent.point.y);
+                                        $('#btnAtras').addClass('hidden');
+                                    }
+                                }
+                            }
+                        ]
+
+                });
+            }
+
+            function totalProvinciaHemodialisisC() {
+                Highcharts.chart('total', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Total de pacientes'
+                        }
+
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y:.0f}'
+                            }
+                        }
+                    },
+
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.0f}</b> pacientes<br/>'
+                    },
+
+                    "series": [
+                        {
+                            "name": "Hemodialisis C",
+                            "id": "Hemodialisis C",
+                            "color": '#004AFF',
+                            "data": arrayTiposProvHemodialisisC,
+                            events: {
+                                click: function (oEvent) {
+                                    alert('categoria: ' + oEvent.point.name + ', value: ' + oEvent.point.y);
+                                    $('#btnAtras').addClass('hidden');
+                                }
+                            }
+                        }
+                    ]
+
+                });
+            }
+
+            function sexoHepatitis() {
+                Highcharts.chart('sexo', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arraySexo,
+                        point: {
+                            events: {
+                                click: function () {
+                                    alert('serie: ' + this.name + ', value: ' + this.y);
+
+                                }
+                            }
+                        }
+                    }]
+                });
+            }
+
+            function sexoProvHepatitisB() {
+                Highcharts.chart('sexo', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arraySexoProvHepatitisB,
+                        point: {
+                            events: {
+                                click: function () {
+                                    alert('serie: ' + this.name + ', value: ' + this.y);
+
+                                }
+                            }
+                        }
+                    }]
+                });
+            }
+
+            function sexoProvHepatitisC() {
+                Highcharts.chart('sexo', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arraySexoProvHepatitisC,
+                        point: {
+                            events: {
+                                click: function () {
+                                    alert('serie: ' + this.name + ', value: ' + this.y);
+
+                                }
+                            }
+                        }
+                    }]
+                });
+            }
+
+            function sexoProvHemodialisisB() {
+                Highcharts.chart('sexo', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arraySexoProvHemodialisisB,
+                        point: {
+                            events: {
+                                click: function () {
+                                    alert('serie: ' + this.name + ', value: ' + this.y);
+
+                                }
+                            }
+                        }
+                    }]
+                });
+            }
+
+            function sexoProvHemodialisisC() {
+                Highcharts.chart('sexo', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arraySexoProvHemodialisisC,
+                        point: {
+                            events: {
+                                click: function () {
+                                    alert('serie: ' + this.name + ', value: ' + this.y);
+
+                                }
+                            }
+                        }
+                    }]
+                });
+            }
+
+            function coinfeccionesHepatitis() {
+                Highcharts.chart('coinfeccion', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:.0f} ',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arrayCoinfeccion
+                    }]
+                });
+            }
+
+            function coinfeccionesProvHepatitisB() {
+                Highcharts.chart('coinfeccion', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:.0f} ',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arrayCoinfeccionesProvHepatitisB
+                    }]
+                });
+            }
+
+            function coinfeccionesProvHepatitisC() {
+                Highcharts.chart('coinfeccion', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:.0f} ',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arrayCoinfeccionesProvHepatitisC
+                    }]
+                });
+            }
+
+            function coinfeccionesProvHemodialisisB() {
+                Highcharts.chart('coinfeccion', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:.0f} ',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arrayCoinfeccionesProvHemodialisisB
+                    }]
+                });
+            }
+
+            function coinfeccionesProvHemodialisisC() {
+                Highcharts.chart('coinfeccion', {
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.y:.0f} ',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                },
+                                connectorColor: 'silver'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Share',
+                        data: arrayCoinfeccionesProvHemodialisisC
+                    }]
+                });
+            }
+
+
+        });
+    </script>
+{% endblock %}

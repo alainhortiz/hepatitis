@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3 form-cont">
+                <h3>Agregar Total Población</h3>
+                <form style="margin-top: 20px; border-bottom: 1px solid #393939; padding-bottom: 15px">
+                    <label for="year">Año:</label>
+                    <input type="number" class="form-control" placeholder="Teclee el año" id="year">
+                    <label for="totalFemenino" style="padding-top: 5px">Total Femenino:</label>
+                    <input type="number" class="form-control" placeholder="Teclee el total femenino" id="totalFemenino">
+                    <label for="totalMasculino" style="padding-top: 5px">Total Masculino:</label>
+                    <input type="number" class="form-control" placeholder="Teclee el total masculino" id="totalMasculino">
+
+                </form>
+                <p class="text-center" style="margin-top: 20px">
+                    <button id="btnGuardar" type="button" class="btn btn-primario">Guardar</button>
+                    <button id="btnSalir" type="button" class="btn btn-primario"> Salir </button>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function()
+        {
+            (function () {
+                {% if not ((is_granted("ROLE_ADMINISTRADOR") and  app.user.getNivelAcceso().nivel == 'nacional')  or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            })();
+
+            //--------- abandonar el formulario -----------------
+            $('#btnSalir').on('click', function ()
+            {
+                window.location.href = "{{ path('gestionarTotalPoblacion') }}";
+
+            });
+
+            //--------- enviar el formulario -----------------
+            $('#btnGuardar').click(function () {
+
+                if($("#year").val().trim() === ''){
+                    alertify.alert('<strong>El año es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                if($("#totalFemenino").val().trim() === ''){
+                    alertify.alert('<strong>El total de población femenina es obligatoria , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                if($("#totalFemenino").val().trim() === '0'){
+                    alertify.alert('<strong>El total de población femenina debe ser mayor que 0.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                if($("#totalMasculino").val().trim() === ''){
+                    alertify.alert('<strong>El total de población masculina es obligatoria , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                if($("#totalMasculino").val().trim() === '0'){
+                    alertify.alert('<strong>El total de población masculina debe ser mayor que 0.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                var sum = parseInt($("#totalFemenino").val()) + parseInt($("#totalMasculino").val());
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    year: $("#year").val(),
+                    total: sum,
+                    totalFemenino: $("#totalFemenino").val(),
+                    totalMasculino: $("#totalMasculino").val()
+                };
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("insertTotalPoblacion") }}',
+                    data: mat_datos
+                }).done(function (data) {
+                    $('input').each(function(){
+                        $(this).val('');
+                    });
+                    $(".preload").addClass('hidden');
+
+                    if(data === 'ok'){
+
+                        alertify.alert('<strong>El total de población ha sido insertado correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label','Aceptar')
+                    }else{
+                        alertify.alert('<strong>'+ data +'</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label','Aceptar')
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,98 @@
+<div id="containerResultado" style="display:none;margin-top: 20px">
+    <div class="container" >
+        <div class="row">
+            <div class="top-datatable" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <div class="no-margin">
+                                <h2 class="no-padding" style="color: #999">Pacientes encontrados</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 2px solid #434242;">
+            <div class="col-md-12">
+                <table id="dataPaciente" class="display" cellspacing="0" width="100%" >
+                    <thead>
+                    <tr>
+                        <th>Nombres y Apellidos</th>
+                        <th>Carnet de Indentidad</th>
+                        <th>Etiología</th>
+                        <th>Tipo de Hepatitis</th>
+                        <th>Fecha de Diagnóstico</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for paciente in pacientes %}
+                        <tr data-id ="{{ paciente.id }}">
+                            <td>{{ paciente.nombreCompleto() }}</td>
+                            <td>{{ paciente.carnetIdentidad }}</td>
+                            <td>{{ paciente.etiologia.nombre }}</td>
+                            <td>{{ paciente.getTipoHepatitis().nombre }}</td>
+                            <td>{{ paciente.fechaDiagnostico|date('Y-m-d') }}</td>
+                            <td>
+                                <a href="{{ path('editPaciente' , {idPaciente:paciente.id , origen:'gestionarPacientes'}) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i> Editar</a>
+                                {% if paciente.gestante == 1 %}
+                                    <a href="{{ path('gestionarHijo' , {idGestante: paciente.pacienteGestante.id , origen:'gestionarPacientes'}) }}" class="btn btn-xs btn-info">
+                                        <span class="badge">{{  gestante.cantidadHijos == 0 ? '' : gestante.cantidadHijos }}</span>
+                                        <i class="fa fa-check"></i>
+                                        Hijos
+                                    </a>
+                                {% endif %}
+                                <a href="#" class="btn btn-danger btn-xs delete"><i class="fa fa-trash-o "></i> Borrar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function()
+    {
+
+        $('#dataPaciente tbody').on('click', '.delete', function () {
+
+            var row = $(this).parents('tr');
+
+            var mat_datos = { idPaciente: row.data('id') };
+
+            alertify.confirm('Basic: false').set('message', 'Seguro que desea eliminar el paciente seleccionado ').set('onok', function(){
+
+                $(".preload").removeClass('hidden');
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("deletePaciente") }}',
+                    data: mat_datos
+                }).done(function (data) {
+                    $(".preload").addClass('hidden');
+                    if(data == 'ok'){
+
+                        alertify.alert('<strong>El paciente ha sido eliminado correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                            .set('label','Aceptar')
+                            .set('onok', function(){
+
+                                row.fadeOut();
+                            });
+                    }else {
+                        alertify.alert('<strong>'+data+'</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmación</h4>')
+                            .set('label','Aceptar')
+                    }
+                });
+            });
+        });
+    });
+</script>

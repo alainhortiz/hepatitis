@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+ {% block nav %}
+     <a class="navbar-brand" href="{{ path('inicio') }}" style="position: relative;z-index: 1"><img
+                 src="{{ asset('images/LogoHepatitis.png') }}" style="width: 48px; margin-top: -14px;margin-left: -13px"
+                 title="Ir a inicio"></a>
+     <ul id="menu">
+         <li>
+             <a><i class="fa fa-angellist fa-2x"></i> <strong>Bienvenido: {{ app.user.nombre }} </strong></a>
+             <ul>
+                 <li><a href="{{ path('passwordForm') }}"><i class="fa fa-meanpath fa-2x"></i> Cambiar Contraseña</a>
+                 </li>
+                 <li><a class="acerca" href="#"><i class="fa fa-info-circle fa-2x"></i>  Acerca de ...</a></li>
+                 <li><a href="{{ path('logout') }}"><i class="fa fa-arrow-circle-left fa-2x"></i> Salir</a></li>
+             </ul>
+         </li>
+         <!-- alert notification start-->
+         <li>
+             <a href="{{ asset('ayuda/manualhepatitis.pdf') }}" target="_parent">
+                 <i class="fa fa-bell-o fa-2x"></i>
+                 {% set notificaciones = 0 %}
+                 {% if cantidadGestantesSinHijos > 0 %}
+                     {% set notificaciones =  notificaciones + 1 %}
+                 {% endif %}
+                 {% if cantidadHijosSinInmunoglobulina > 0 %}
+                     {% set notificaciones =  notificaciones + 1 %}
+                 {% endif %}
+                 {% if cantidadHijosSinPruebas > 0 %}
+                     {% set notificaciones =  notificaciones + 1 %}
+                 {% endif %}
+                 {% if cantidadHijosFaltanVacunas > 0 %}
+                     {% set notificaciones =  notificaciones + 1 %}
+                 {% endif %}
+                 {% if notificaciones > 0 %}
+                     <span style="background: #008080;right: 150px;top: 0px;z-index: 100;position: absolute;"
+                           class="badge bg-important">{{ notificaciones }}</span>
+                 {% endif %}
+                 Notificaciones
+             </a>
+             {% if notificaciones > 0 %}
+                 <ul class="dropdown-menu extended notification">
+                     <div class="notify-arrow notify-arrow-blue"></div>
+                     <li>
+                         <a style="background-color: #229486 ; color: #ffffff; padding: 10px">
+                             {{ notificaciones == 1 ? 'TIENES '~notificaciones ~' NOTIFICACION' :'TIENES '~notificaciones ~' NOTIFICACIONES' }}
+                         </a>
+                     </li>
+                     {% if cantidadGestantesSinHijos > 0 %}
+                         <li>
+                             <a href="{{ path('listadoGestantesSinHijosFueraTiempo') }}">
+                                 <span><i class="fa fa-address-book fa-2x"></i></span>
+                                 <span class="media-object italic pull-right">{{ cantidadGestantesSinHijos }}</span>
+                                 Gestantes sin hijos registrados
+
+                             </a>
+                         </li>
+                     {% endif %}
+                     {% if cantidadHijosSinInmunoglobulina > 0 %}
+                         <li>
+                             <a href="{{ path('listadoHijosSinInmunoglobulina') }}">
+                                 <span><i class="fa fa-child fa-2x"></i></span>
+                                 <span class="media-object italic pull-right">{{ cantidadHijosSinInmunoglobulina }}</span>
+                                 Niños sin Inmunoglobulina
+
+                             </a>
+                         </li>
+                     {% endif %}
+                     {% if cantidadHijosSinPruebas > 0 %}
+                         <li>
+                             <a href="{{ path('listadoHijosSinPruebas') }}">
+                                 <span><i class="fa fa-child fa-2x"></i></span>
+                                 <span class="media-object italic pull-right">{{ cantidadHijosSinPruebas }}</span>
+                                 Niños sin Pruebas Realizadas
+
+                             </a>
+                         </li>
+                     {% endif %}
+                     {% if cantidadHijosFaltanVacunas > 0 %}
+                         <li>
+                             <a href="{{ path('listadoHijosFaltanVacunas') }}">
+                                 <span><i class="fa fa-child fa-2x"></i></span>
+                                 <span class="media-object italic pull-right">{{ cantidadHijosFaltanVacunas }}</span>
+                                 Niños que le faltan Vacunas
+
+                             </a>
+                         </li>
+                     {% endif %}
+                 </ul>
+             {% endif %}
+
+         </li>
+         <!-- alert notification end-->
+         <li><a href="{{ asset('ayuda/manualhepatitis.pdf') }}"><i class="fa fa-lightbulb-o fa-2x"></i> Ayuda</a></li>
+         {% if (is_granted("ROLE_ADMINISTRADOR") and app.user.getNivelAcceso().nivel == 'nacional') or is_granted("ROLE_SUPERUSUARIO") %}
+             <li>
+                 <a href="#"><i class="fa fa-lock fa-2x"></i> Administración</a>
+                 <ul>
+                     <li><a href="{{ path('gestionarUsuarios') }}"><i class="fa fa-user-plus fa-2x"></i> Gestionar
+                             Usuarios</a></li>
+                     <li>
+                         <a><i class="fa fa-server fa-2x"></i> Generales</a>
+                         <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                             <li><a href="{{ path('gestionarOcupacion') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Ocupación</a></li>
+                             <li><a href="{{ path('gestionarNivelEscolaridad') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Nivel de Escolaridad</a>
+                             </li>
+                             <li><a href="{{ path('gestionarEstadoCivil') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Estado Civil</a></li>
+                             <li><a href="{{ path('gestionarProvincias') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Provincias</a></li>
+                             <li><a href="{{ path('gestionarMunicipios') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Municipios</a></li>
+                             <li><a href="{{ path('gestionarUnidades') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Unidades</a></li>
+                             <li><a href="{{ path('trazas') }}"><i class="fa fa-arrow-circle-right fa-2x"></i> Trazas</a></li>
+                         </ul>
+                     <li>
+                         <a><i class="fa fa-server fa-2x"></i> Diagnostico</a>
+                         <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                             <li><a href="{{ path('gestionarAntecedentePatologico') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Antecedentes
+                                     Patológicos</a></li>
+                             <li><a href="{{ path('gestionarEtiologia') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Etiología</a></li>
+                             <li><a href="{{ path('gestionarTiposHepatitis') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Tipos de
+                                     Hepatitis</a></li>
+                             <li><a href="{{ path('gestionarEstadiosHepatitis') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Estadíos de Hepatitis</a>
+                             </li>
+                             <li><a href="{{ path('gestionarFormaInfeccion') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Formas de
+                                     Infección</a></li>
+                             <li><a href="{{ path('gestionarGrupoVulnerable') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Grupos
+                                     Vulnerables</a></li>
+                             <li><a href="{{ path('gestionarFuentePesquisa') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Fuentes de
+                                     Pesquisa</a></li>
+                             <li><a href="{{ path('gestionarMotivoFuentePesquisa') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Motivos de Fuentes de
+                                     Pesquisa</a></li>
+                             <li><a href="{{ path('gestionarCoinfeccion') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Coinfecciones</a>
+                             </li>
+                         </ul>
+                     </li>
+                     <li>
+                         <a><i class="fa fa-server fa-2x"></i> Laboratorio</a>
+                         <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                             <li><a href="{{ path('gestionarPrueba') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>
+                                     Gestionar Pruebas</a></li>
+                         </ul>
+                     </li>
+                     <li>
+                         <a><i class="fa fa-server fa-2x"></i> Tratamiento</a>
+                         <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                             <li><a href="{{ path('gestionarEvolucionClinica') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Evolución Clínica</a>
+                             </li>
+                             <li><a href="{{ path('gestionarVacuna') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>
+                                     Gestionar Vacunas</a></li>
+                             <li><a href="{{ path('gestionarMedicamentos') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Medicamentos</a></li>
+                             <li><a href="{{ path('gestionarCausaFallecimiento') }}"><i
+                                             class="fa fa-arrow-circle-right fa-2x"></i> Gestionar Causa de
+                                     Fallecimiento</a></li>
+                         </ul>
+                     </li>
+                     <li>
+                         <a><i class="fa fa-server fa-2x"></i> Estadísticas</a>
+                         <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                             <li><a href="{{ path('gestionarTotalPoblacion') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>
+                                     Total de Población</a></li>
+                         </ul>
+                     </li>
+                 </ul>
+             </li>
+         {% endif %}
+         <li><a><i class="fa fa-bar-chart fa-2x"></i> Estadísticas</a>
+             <ul>
+                 <li><a href="#"><i class="fa fa-file-pdf-o fa-2x"></i> Reportes</a>
+                     <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                         <li><a href="{{ path('formEtiologia') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos
+                                 por etiologia</a></li>
+                         <li><a href="{{ path('formHemodialisis') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos
+                                 de hemodiálisis</a></li>
+                         <li><a href="{{ path('formSexo') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos por
+                                 sexo</a></li>
+                         <li><a href="{{ path('formEvolucionClinica') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>Casos
+                                 por evolución clínica</a></li>
+                         <li><a href="{{ path('formCoinfeccion') }}"><i class="fa fa-arrow-circle-right fa-2x"></i>
+                                 Asociados a coinfecciones</a></li>
+                     </ul>
+                 </li>
+                 <li><a href="#"><i class="fa fa-pie-chart fa-2x"></i> Gráficos</a>
+                     <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                         <li><a href="{{ path('graficoHemodialisis') }}"><i class="fa fa-area-chart fa-2x"></i> General</a></li>
+                         <li><a href="{{ path('graficoProvincias') }}"><i class="fa fa-area-chart fa-2x"></i> Provincias</a></li>
+                         <li><a href="{{ path('graficoTasas') }}"><i class="fa fa-area-chart fa-2x"></i> Tasas</a></li>
+                         <li><a href="{{ path('graficoMortalidad') }}"><i class="fa fa-area-chart fa-2x"></i> Mortalidad</a></li>
+                     </ul>
+                 </li>
+                 <li><a href="#"><i class="fa fa-file-excel-o fa-2x"></i> Exportaciones</a>
+                     <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                         <li><a href="{{ path('excelExportacionGeneral') }}"><i class="fa fa-download fa-2x"></i> General</a></li>
+                     </ul>
+                 </li>
+                 <li><a href="#"><i class="fa fa-file-text-o fa-2x"></i> Listados</a>
+                     <ul style="position: absolute ; transform: translateX(-99%) translateY(-35px)">
+                         <li><a href="{{ path('listadoGeneralPacientes') }}"><i class="fa fa-file-text-o fa-2x"></i> General</a></li>
+                         <li><a href="{{ path('listadoGestantes') }}"><i class="fa fa-file-text-o fa-2x"></i> Gestantes</a></li>
+                     </ul>
+                 </li>
+             </ul>
+         </li>
+         <li><a href="#"><i class="fa fa-blind fa-2x"></i> Pacientes</a>
+             <ul>
+                 <li><a href="{{ path('gestionarPacientes') }}"><i class="fa fa-address-book-o fa-2x"></i> Gestionar
+                         Pacientes</a></li>
+                 {#<li><a href="#"><i class="fa fa-search fa-2x"></i> Localizar Pacientes</a></li>#}
+                 <li><a href="{{ path('gestionarTodosHijos') }}"><i class="fa fa-street-view fa-2x"></i> Seguimiento de
+                         los niños</a></li>
+             </ul>
+         </li>
+         <li><a href="{{ path('inicio') }}"><i class="fa fa-home fa-2x"></i> Inicio</a></li>
+     </ul>
+ {% endblock %}
+
+{% block body %}
+    <div>
+        <div id="wb_Heading1" style="display:inline-block;width:618px;z-index:1">
+            <h1 id="Heading1">REGISTRO NACIONAL DE HEPATITIS</h1>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/javascript/principal/inicio.js') }}"></script>
+    <script>
+        $(document).ready(function()
+        {
+            $('.acerca').on("click", function () {
+
+                alertify.alert('<h3>Versión 20220312.</h3>')
+                    .setHeader('<span class="glyphicon glyphicon-info-sign" style="font-size: 20px"></span>' +
+                        '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Información</h4>')
+                    .set('label','Aceptar');
+
+            });
+
+        });
+    </script>
+{% endblock %}

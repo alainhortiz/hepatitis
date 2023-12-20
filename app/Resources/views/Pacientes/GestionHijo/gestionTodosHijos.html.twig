@@ -1,0 +1,692 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/DataTables-1.10.10/media/css/jquery.dataTables.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+    {# Contiene el formulario de adicionar #}
+    {#<div id="containerFormHijo" style="display:none;margin-top: 20px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12  form-cont">
+                    <h3>Agregar Hijo</h3>
+                    <div id="tabs">
+                        <ul>
+                            <li><a href="#tabs-1">Generales</a></li>
+                            <li><a href="#tabs-2">Vacunas</a></li>
+                            <li><a href="#tabs-3">Laboratorio</a></li>
+                        </ul>
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div id="tabs-1">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label " for="addNombreHijo">Nombre:</label>
+                                            <div>
+                                                <input placeholder="Teclee el nombre" type="text"
+                                                       class="form-control input-sm"
+                                                       id="addNombreHijo" name="addNombreHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label " for="addPrimerApellidoHijo">Primer
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el primer apellido" type="text"
+                                                       class="form-control input-sm" id="addPrimerApellidoHijo"
+                                                       name="addPrimerApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label " for="addSegundoApellidoHijo">Segundo
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el segundo apellido" type="text"
+                                                       class="form-control input-sm" id="addSegundoApellidoHijo"
+                                                       name="addSegundoApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-top: 20px">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaNacimiento">Fecha de
+                                                Nacimiento</label>
+                                            <input type="text" name="addFechaNacimiento"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaNacimiento">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group" style="padding-top: 25px">
+                                            <label for="addInmunoglobulina">Inmunoglobulina</label>
+                                            <input type="checkbox" id="addInmunoglobulina" name="addInmunoglobulina ">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaInmunoglobulina">Fecha de
+                                                Inmunoglobulina</label>
+                                            <input type="text" name="addFechaInmunoglobulina"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaInmunoglobulina" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaAlta">Fecha de
+                                                Alta</label>
+                                            <input type="text" name="addFechaAlta"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaAlta" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tabs-2">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addVacunaUno">1era Dosis</label>
+                                            <input type="text" name="addVacunaUno"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addVacunaUno">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addVacunaDos">2da Dosis</label>
+                                            <input type="text" name="addVacunaDos"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addVacunaDos">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addVacunaTercera">3ra Dosis</label>
+                                            <input type="text" name="addVacunaTercera"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addVacunaTercera">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addReactivacion">Reactivación</label>
+                                            <input type="text" name="addReactivacion"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addReactivacion">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnVacunas" >Agregar
+                                            Vacunas
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasVacuna" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>1ra Dosis</th>
+                                            <th>2da Dosis</th>
+                                            <th>3ra Dosis</th>
+                                            <th>Reactivación</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbodyVacuna"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="tabs-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="addPrueba">Prueba</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" id="addPrueba" name="addPrueba">
+                                                <option value="0">Seleccione la prueba...</option>
+                                                {% for prueba in  pruebas %}
+                                                    {% if prueba.menor==1 %}
+                                                        <option value="{{ prueba.id }}">{{ prueba.nombre }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="addResultado">Resultado </label>
+                                        <div class="form-group">
+                                            <select disabled class="f1-last-name form-control" id="addResultado"
+                                                    name="addResultado">
+                                                <option id="inicio2" value="0">Seleccione el resultado...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div id="mostrarValor" style="display: none">
+                                            <label for="addValor">Valor:</label>
+                                            <input type="text" class="form-control input-number"
+                                                   id="addValor" name="addValor">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="addFechaPrueba">Fecha realizada</label>
+                                            <input type="text" name="addFechaPrueba"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="addFechaPrueba">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnPruebas">Agregar
+                                            Prueba
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasPrueba" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>Prueba</th>
+                                            <th>Valor</th>
+                                            <th>Resultado</th>
+                                            <th>Fecha</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbodyPrueba"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <p class="text-center" style="margin-top: 20px">
+                        <button id="btnGuardar" type="button" class="btn btn-primario">Guardar</button>
+                        <button id="btnSalir" type="button" class="btn btn-primario"> Salir</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>#}
+    {# Contiene el formulario de modificar #}
+    <div id="containerModificarHijo" style="display:none;margin-top: 20px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12  form-cont">
+                    <h3>Modificar Hijo</h3>
+                    <div id="tabs2">
+                        <ul>
+                            <li><a href="#tabs2-1">Generales</a></li>
+                            <li><a href="#tabs2-2">Vacunas</a></li>
+                            <li><a href="#tabs2-3">Laboratorio</a></li>
+                        </ul>
+                        <form style="margin-top: 20px; padding-bottom: 15px">
+                            <div id="tabs2-1">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="editNombreHijo">Nombre:</label>
+                                            <div>
+                                                <input placeholder="Teclee el nombre" type="text"
+                                                       class="form-control input-sm"
+                                                       id="editNombreHijo" name="editNombreHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="editPrimerApellidoHijo">Primer
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el primer apellido" type="text"
+                                                       class="form-control input-sm" id="editPrimerApellidoHijo"
+                                                       name="editPrimerApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label " for="editSegundoApellidoHijo">Segundo
+                                                Apellido:</label>
+                                            <div>
+                                                <input placeholder="Teclee el segundo apellido" type="text"
+                                                       class="form-control input-sm" id="editSegundoApellidoHijo"
+                                                       name="editSegundoApellidoHijo">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="editSexo">Sexo:</label>
+                                        <select class="form-control input-sm " id="editSexo" name="editSexo">
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-top: 20px">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaNacimiento">Fecha de
+                                                Nacimiento</label>
+                                            <input type="text" name="editFechaNacimiento"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaNacimiento">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group" style="padding-top: 25px">
+                                            <label for="editInmunoglobulina">Inmunoglobulina</label>
+                                            <input type="checkbox" id="editInmunoglobulina" name="editInmunoglobulina ">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaInmunoglobulina">Fecha de
+                                                Inmunoglobulina</label>
+                                            <input type="text" name="editFechaInmunoglobulina"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaInmunoglobulina" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaAlta">Fecha de
+                                                Alta</label>
+                                            <input type="text" name="editFechaAlta"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaAlta" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tabs2-2">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editVacunaUno">1era Dosis</label>
+                                            <input type="text" name="editVacunaUno"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editVacunaUno">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editVacunaDos">2da Dosis</label>
+                                            <input type="text" name="editVacunaDos"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editVacunaDos">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editVacunaTercera">3ra Dosis</label>
+                                            <input type="text" name="editVacunaTercera"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editVacunaTercera">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editReactivacion">Reactivación</label>
+                                            <input type="text" name="editReactivacion"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editReactivacion">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnEditVacunas" >Agregar
+                                            Esquema de Vacunación
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasEditVacuna" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>1ra Dosis</th>
+                                            <th>2da Dosis</th>
+                                            <th>3ra Dosis</th>
+                                            <th>Reactivación</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="tabs2-3">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="editPrueba">Prueba</label>
+                                        <div class="form-group">
+                                            <select class="f1-last-name form-control" id="editPrueba" name="editPrueba">
+                                                <option value="0">Seleccione la prueba...</option>
+                                                {% for prueba in  pruebas %}
+                                                    {% if prueba.menor==1 %}
+                                                        <option value="{{ prueba.id }}">{{ prueba.nombre }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="editResultado">Resultado </label>
+                                        <div class="form-group">
+                                            <select disabled class="f1-last-name form-control" id="editResultado"
+                                                    name="editResultado">
+                                                <option id="inicio" value="0">Seleccione el resultado...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div id="mostrarEditValor" style="display: none">
+                                            <label for="editValor">Valor:</label>
+                                            <input type="text" class="form-control input-number"
+                                                   id="editValor" name="editValor">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="editFechaPrueba">Fecha realizada</label>
+                                            <input type="text" name="editFechaPrueba"
+                                                   placeholder="Seleccione la fecha..."
+                                                   class="f1-last-name form-control"
+                                                   id="editFechaPrueba">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-top: 20px">
+                                        <button type="button" class="btn" id="agregarBtnEditPruebas">Agregar
+                                            Prueba
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <table id="esquemasEditPrueba" class="table table-bordered"
+                                           style="margin-top: 17px ; margin-left: 15px ; width: 97%">
+                                        <thead>
+                                        <tr style="color: #2bc7c7">
+                                            <th>Prueba</th>
+                                            <th>Valor</th>
+                                            <th>Resultado</th>
+                                            <th>Fecha</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <p class="text-center" style="margin-top: 20px">
+                        <button id="btnEditGuardar" type="button" class="btn btn-primario" >Guardar</button>
+                        <button id="btnEditSalir" type="button" class="btn btn-primario"> Salir</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# Contiene el datatable del resultado de los hijos #}
+    <div style="margin-top: 20px;">
+        <div class="top-datatable">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-10">
+                        <div class="no-margin">
+                            <h2 class="no-padding" style="color: #999">Hijos</h2>
+                        </div>
+                    </div>
+                    {#<div class="col-md-2">
+                        <div class="no-margin">
+                            <h2 style="float: right">
+                                <a id="addHijo" href="#"
+                                   data-toggle="tooltip" data-placement="bottom" title="AGREGAR HIJOS"
+                                   style="text-decoration: none; color: #999;">
+                                    <i class="fa fa-plus-square fa-1x"></i>
+                                </a>
+                            </h2>
+                        </div>
+                    </div>#}
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row"
+                 style="background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 2px solid #434242;">
+                <div class="col-md-12">
+                    <table id="dataHijo" class="display" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Nombres y Apellidos</th>
+                            <th>Nacimiento</th>
+                            <th>Madre</th>
+                            <th>Esquemas Vacunación</th>
+                            <th>Vacunas</th>
+                            <th>Pruebas</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for hijo in hijos %}
+                        <tr data-id="{{ hijo.id }}">
+                            <td>{{ hijo.nombreCompleto }}</td>
+                            <td>{{ hijo.fechaNacimiento|date('d-m-Y') == '01-01-0001' ? '' :hijo.fechaNacimiento|date('d-m-Y') }}</td>
+                            <td>{{ hijo.pacienteGestante.paciente.nombreCompleto }}</td>
+                            <td class="text-center">{{ hijo.cantidadDosis }}</td>
+                            {% if hijo.cantidadDosis != 0 %}
+                                {% set cantidad=0 %}
+                                {% for vacuna in hijo.hijoVacunas() %}
+                                    {% set cantidad = cantidad + vacuna.cantidadVacunas %}
+                                {% endfor %}
+                                <td class="text-center">{{ cantidad }}</td>
+                            {% else %}
+                                <td class="text-center">0</td>
+                            {% endif %}
+                            <td class="text-center">{{ hijo.cantidadPruebas }}</td>
+                            <td>
+                                {% if hijo.alta != 1 %}
+                                    <a id="editHijo" href="#" class="btn btn-primary btn-xs edit"><i
+                                                class="fa fa-pencil "></i> Editar</a>
+                                    <a href="#" class="btn btn-danger btn-xs delete"><i class="fa fa-trash-o "></i>
+                                        Borrar</a>
+                                {% else %}
+                                    ALTA
+                                {% endif %}
+                            </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ include('Pacientes/GestionHijo/modalEditEsquemaVacunas.html.twig') }}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/DataTables-1.10.10/media/js/jquery.dataTables.js') }}"></script>
+    <script src="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/formatoTipos.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/moment.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+
+            function verificarusuario() {
+                {% if not (is_granted("ROLE_EDITOR_ESTADISTICA") or is_granted("ROLE_SUPERUSUARIO")) %}
+                     window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+
+            verificarusuario();
+
+            $('#dataHijo').DataTable();
+
+            {{ include('Pacientes/GestionHijo/editHijoJS.html.twig') }}
+
+
+            /*Declaraciones*/
+            $("#addInmunoglobulina  ,  #editInmunoglobulina").checkboxradio();
+            $("#addFechaInmunoglobulina , #addFechaNacimiento , #addFechaAlta, #editFechaAlta , #addVacunaUno , #addVacunaDos  , #addVacunaTercera  , #addReactivacion, #addFechaPrueba, #editFechaInmunoglobulina , #editFechaNacimiento , #editVacunaUno , #editVacunaDos  , #editVacunaTercera  , #editReactivacion, #editFechaPrueba").datepicker({
+                firstDay: 1,
+                dateFormat: 'dd-mm-yy',
+                changeMonth: true,
+                changeYear: true
+            });
+
+            $(function () {
+                $("#tabs").tabs();
+                $("#tabs2").tabs();
+            });
+
+            /*  Validaciones  */
+            $('#addInmunoglobulina').on("click", function () {
+
+                if ($('#addInmunoglobulina').prop('checked')) {
+                    $('#addFechaInmunoglobulina').prop('disabled', false);
+                } else {
+                    $('#addFechaInmunoglobulina').prop('disabled', true);
+                }
+            });
+
+            $('#addHijo').on('click', function () {
+                $('#containerModificarHijo').css("display", "none");
+                $('#containerFormHijo').css("display", "block");
+            });
+
+//--------- abandonar el formulario -----------------
+            $('#btnEditSalir').on('click', function () {
+                window.location.href = "{{ path('inicio') }}";
+            });
+
+            //--------- enviar el formulario -----------------
+            $('#btnEditGuardar').click(function () {
+
+                if ($("#editNombreHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo nombre es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if ($("#editPrimerApellidoHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo primer apellido es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                if ($("#editSegundoApellidoHijo").val().trim() == '') {
+                    alertify.alert('<strong>El campo segundo apellido es obligatorio , no puede quedar en blanco.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                if ($("#editFechaNacimiento").val() == '') {
+                    alertify.alert('<strong>Debe seleccionar la fecha de nacimiento.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+                var inmunoglobulina = 0;
+                if ($('#editInmunoglobulina').prop('checked')) {
+                    inmunoglobulina = 1;
+                }
+                if(inmunoglobulina == 1 &&  $("#editFechaInmunoglobulina").val() == ''){
+                    alertify.alert('<strong>Debe seleccionar la fecha de la inmunoglobulina.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label', 'Aceptar');
+                    return false;
+                }
+
+                $(".preload").removeClass('hidden');
+
+                var alta = 0;
+                if ($('#editFechaAlta').val() !='') {
+                    alta = 1;
+                }
+
+                var mat_datos = {
+                    idHijo: idHijoEdit,
+                    nombre: $("#editNombreHijo").val(),
+                    primerApellido: $("#editPrimerApellidoHijo").val(),
+                    segundoApellido: $("#editSegundoApellidoHijo").val(),
+                    sexo: $("#editSexo").val(),
+                    inmunoglobulina: inmunoglobulina,
+                    fechaNacimiento: $("#editFechaNacimiento").val(),
+                    fechaInmunoglobulina: $("#editFechaInmunoglobulina").val(),
+                    fechaAlta: $("#editFechaAlta").val(),
+                    alta: alta,
+                    hijosVacunas: hijosEditVacunas,
+                    hijosPruebas: hijoEditPruebas,
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '{{ path("updateHijo") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    if (data == 'ok') {
+
+                        alertify.alert('<strong>El hijo ha sido modificado correctamente</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                            .set('label', 'Aceptar')
+                            .set('onok', function () {
+
+                                window.location.reload();
+                            });
+                    } else {
+                        alertify.alert('<strong>' + data + '</strong>')
+                            .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                                '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                            .set('label', 'Aceptar')
+                    }
+                });
+            });
+
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,448 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/stylesheet/Graficos/GraficosStyle.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('easyadmin/jquery-ui-1.12.1/jquery-ui.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+
+    {# Graficos #}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <div class="panel-title"><strong>Seleccione el año</strong></div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="col-md-9 col-6"  class="text-center">
+                            <input type="number" min="1990" value="{{ year }}"  class="form-control"
+                                   id="year"
+                                   name="year">
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <button class="btn btn-primary btn-icon-only rounded-circle"
+                                    type="button" id="btnBuscar"
+                                    name="btnBuscar" data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Buscar por el año">
+                                                                <span class="btn-inner--icon"><i
+                                                                            class="fa fa-search"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="content-box-large">
+                    <div class="panel-body">
+                        <div style="height: 70px;" class="text-center">
+                            <i id="sexoFemenino" style="color: #0c199c;cursor: pointer" class="fa fa-female fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="content-box-large">
+                    <div class="panel-body">
+                        <div style="height: 70px;" class="text-center">
+                            <i id="sexoMasculino" style="color: #0c199c;cursor: pointer" class="fa fa-male fa-4x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <strong><div class="panel-title" id="nameIncidencia">Tasas de incidencias de la Hepatitis del año {{ year }}</div></strong>
+                        <div class="panel-options">
+                            <a href="#" class="reload hidden" id="btnAtrasIncidencia" data-placement="top" data-original-title="Regresar">
+                                <i class="fa fa-arrow-circle-left fa-2x"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="incidencias" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="content-box-large">
+                    <div class="panel-heading">
+                        <strong><div class="panel-title" id="namePrevalencia">Tasas de prevalencia de la Hepatitis del año {{ year }}</div></strong>
+                    </div>
+                    <div class="panel-options">
+                    </div>
+                    <div class="panel-body">
+                        <div id="prevalencias" style="height: 230px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/highcharts.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/exporting.js') }}"></script>
+    <script src="{{ asset('easyadmin/javascript/highcharts/code/modules/export-data.js') }}"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            (function () {
+                {% if not (is_granted("ROLE_VISUALIZADOR") or is_granted("ROLE_SUPERUSUARIO")) %}
+                window.location.href = "{{ path('login') }}";
+                {% endif %}
+            })();
+
+            //---------declaraciones--------//
+            var tasaIncidenciaMensualB = [];
+            var tasaIncidenciaMensualC = [];
+            var tasaPrevalenciaMensualB = [];
+            var tasaPrevalenciaMensualC = [];
+            var n;
+
+            function Inicio() {
+                tasaIncidenciaMensualB = [];
+                //Cargar datos pacientes  Hepatitis B
+                {% for tasa in tasaIncidenciasB %}
+                tasaIncidenciaMensualB.push([ {{ tasa['total'] }} ]);
+                {% endfor %}
+
+                tasaIncidenciaMensualC = [];
+                //Cargar datos pacientes Hepatitis C
+                {% for tasa in tasaIncidenciasC %}
+                tasaIncidenciaMensualC.push([ {{ tasa['total'] }} ]);
+                {% endfor %}
+
+                tasaPrevalenciaMensualB = [];
+                //Cargar datos pacientes  Hepatitis B
+                {% for tasa in tasaPrevalenciasB %}
+                tasaPrevalenciaMensualB.push([ {{ tasa['total'] }} ]);
+                {% endfor %}
+
+                tasaPrevalenciaMensualC = [];
+                //Cargar datos pacientes  Hepatitis B
+                {% for tasa in tasaPrevalenciasC %}
+                tasaPrevalenciaMensualC.push([ {{ tasa['total'] }} ]);
+                {% endfor %}
+
+                graficoTasaIncidenciaMensual();
+                graficoTasaPrevalenciaMensual();
+            }
+
+            Inicio();
+
+            $('#btnAtrasIncidencia').on("click", function () {
+                $('#btnAtrasIncidencia').addClass('hidden');
+                $('#nameIncidencia').text('Tasas de incidencias de la Hepatitis del año ' + $("#year").val());
+                $('#namePrevalencia').text('Tasas de prevalencia de la Hepatitis del año ' + $("#year").val());
+                yearBuscar();
+            });
+
+            $('#sexoFemenino').on("click", function () {
+                var sex = 'Femenino';
+                Sexo(sex);
+            });
+
+            $('#sexoMasculino').on("click", function () {
+                var sex = 'Masculino';
+                Sexo(sex);
+            });
+
+            function Sexo(sex) {
+                //mostrar si existe el grafico mensual
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    year: $("#year").val(),
+                    sexo: sex
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoTasasSexo") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var totalPacientes = obj['totalPacientes'];
+                    var tasaIncidenciaSexoB = obj['tasaIncidenciasB'];
+                    var tasaIncidenciaSexoC = obj['tasaIncidenciasC'];
+                    var tasaPrevalenciaSexoB = obj['tasaPrevalenciasB'];
+                    var tasaPrevalenciaSexoC = obj['tasaPrevalenciasC'];
+
+                    tasaIncidenciaMensualB = [];
+                    for (n = 0; n < tasaIncidenciaSexoB.length; n++) {
+                        tasaIncidenciaMensualB.push([ parseFloat(tasaIncidenciaSexoB[n]['total']) ]);
+                    }
+
+                    tasaIncidenciaMensualC = [];
+                    for (n = 0; n < tasaIncidenciaSexoC.length; n++) {
+                        tasaIncidenciaMensualC.push([ parseFloat(tasaIncidenciaSexoC[n]['total']) ]);
+                    }
+
+                    tasaPrevalenciaMensualB = [];
+                    for (n = 0; n < tasaPrevalenciaSexoB.length; n++) {
+                        tasaPrevalenciaMensualB.push([ parseFloat(tasaPrevalenciaSexoB[n]['total']) ]);
+                    }
+
+                    tasaPrevalenciaMensualC = [];
+                    for (n = 0; n < tasaPrevalenciaSexoC.length; n++) {
+                        tasaPrevalenciaMensualC.push([ parseFloat(tasaPrevalenciaSexoC[n]['total']) ]);
+                    }
+
+                    $('#nameIncidencia').text('Tasas de incidencias de la Hepatitis del año ' + $("#year").val() + ' en el sexo ' + sex);
+                    $('#namePrevalencia').text('Tasas de prevalencia de la Hepatitis del año ' + $("#year").val() + ' en el sexo ' + sex);
+                    $('#btnAtrasIncidencia').removeClass('hidden');
+                    graficoTasaIncidenciaMensual();
+                    graficoTasaPrevalenciaMensual();
+
+                });
+            }
+
+            $('#btnBuscar').on("click", function () {
+                yearBuscar();
+            });
+
+            function yearBuscar() {
+                if($("#year").val().trim() === ''){
+                    alertify.alert('<strong>Debe seleccionar el año.</strong>')
+                        .setHeader('<span class="glyphicon glyphicon-ban-circle" style="font-size: 20px"></span>' +
+                            '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Error</h4>')
+                        .set('label','Aceptar');
+                    return false;
+                }
+
+                $(".preload").removeClass('hidden');
+
+                var mat_datos = {
+                    year: $("#year").val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: '{{ path("graficoTasasYear") }}',
+                    data: mat_datos
+                }).done(function (data) {
+
+                    $(".preload").addClass('hidden');
+                    var obj = JSON.parse(data);
+                    var totalPacientes = obj['totalPacientes'];
+                    var tasaIncidenciaSexoB = obj['tasaIncidenciasB'];
+                    var tasaIncidenciaSexoC = obj['tasaIncidenciasC'];
+                    var tasaPrevalenciaSexoB = obj['tasaPrevalenciasB'];
+                    var tasaPrevalenciaSexoC = obj['tasaPrevalenciasC'];
+
+                    tasaIncidenciaMensualB = [];
+                    for (n = 0; n < tasaIncidenciaSexoB.length; n++) {
+                        tasaIncidenciaMensualB.push([ parseFloat(tasaIncidenciaSexoB[n]['total']) ]);
+                    }
+
+                    tasaIncidenciaMensualC = [];
+                    for (n = 0; n < tasaIncidenciaSexoC.length; n++) {
+                        tasaIncidenciaMensualC.push([ parseFloat(tasaIncidenciaSexoC[n]['total']) ]);
+                    }
+
+                    tasaPrevalenciaMensualB = [];
+                    for (n = 0; n < tasaPrevalenciaSexoB.length; n++) {
+                        tasaPrevalenciaMensualB.push([ parseFloat(tasaPrevalenciaSexoB[n]['total']) ]);
+                    }
+
+                    tasaPrevalenciaMensualC = [];
+                    for (n = 0; n < tasaPrevalenciaSexoC.length; n++) {
+                        tasaPrevalenciaMensualC.push([ parseFloat(tasaPrevalenciaSexoC[n]['total']) ]);
+                    }
+
+                    $('#nameIncidencia').text('Tasas de incidencias de la Hepatitis del año ' + $("#year").val());
+                    $('#namePrevalencia').text('Tasas de prevalencia de la Hepatitis del año ' + $("#year").val());
+                    $('#btnAtrasIncidencia').removeClass('hidden');
+                    graficoTasaIncidenciaMensual();
+                    graficoTasaPrevalenciaMensual();
+
+                });
+
+            }
+
+            //Grafico incidencia general
+            function graficoTasaIncidenciaMensual() {
+                Highcharts.chart('incidencias', {
+                    chart: {
+                        type: 'area'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        categories: ['Ene.', 'Feb.', 'Mar.', 'Abr.', 'May.', 'Jun.', 'Jul.', 'Ago.', 'Sep.', 'Oct.', 'Nov.', 'Dic.'],
+                        useHTML: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Pacientes',
+                            useHTML: true
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        area: {
+                            fillOpacity: 0.5
+                        },
+                        series: {
+                            borderWidth: 0,
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            getExtremesFromAll: true,
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return Highcharts.numberFormat(this.y, 2, ',', '.');
+                                }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>' + ' pacientes ' + '<b>{point.y:,.2f}</b>'
+                    },
+                    credits: {
+                        enabled: false
+                    },
+
+                    "series": [
+                        {
+                            "name": "Hepatitis B",
+                            "data": tasaIncidenciaMensualB
+                        },
+                        {
+                            "name": "Hepatitis C",
+                            "data": tasaIncidenciaMensualC
+                        }
+                    ],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 800
+                            },
+                            chartOptions: {
+                                scrollbar: {
+                                    enabled: true
+                                },
+                                xAxis: {
+                                    min: 0,
+                                    max: 1,
+                                    useHTML: true
+                                }
+                            }
+                        }]
+                    }
+                });
+            }
+
+            //Grafico incidencia general
+            function graficoTasaPrevalenciaMensual() {
+                Highcharts.chart('prevalencias', {
+                    chart: {
+                        type: 'area'
+                    },
+                    title: {
+                        text: null
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        categories: ['Ene.', 'Feb.', 'Mar.', 'Abr.', 'May.', 'Jun.', 'Jul.', 'Ago.', 'Sep.', 'Oct.', 'Nov.', 'Dic.'],
+                        useHTML: true
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Pacientes',
+                            useHTML: true
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        area: {
+                            fillOpacity: 0.5
+                        },
+                        series: {
+                            borderWidth: 0,
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            getExtremesFromAll: true,
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return Highcharts.numberFormat(this.y, 2, ',', '.');
+                                }
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>' + ' pacientes ' + '<b>{point.y:,.2f}</b>'
+                    },
+                    credits: {
+                        enabled: false
+                    },
+
+                    "series": [
+                        {
+                            "name": "Hepatitis B",
+                            "data": tasaPrevalenciaMensualB
+                        },
+                        {
+                            "name": "Hepatitis C",
+                            "data": tasaPrevalenciaMensualC
+                        }
+                    ],
+                    responsive: {
+                        rules: [{
+                            condition: {
+                                maxWidth: 800
+                            },
+                            chartOptions: {
+                                scrollbar: {
+                                    enabled: true
+                                },
+                                xAxis: {
+                                    min: 0,
+                                    max: 1,
+                                    useHTML: true
+                                }
+                            }
+                        }]
+                    }
+                });
+            }
+
+        });
+
+    </script>
+{% endblock %}

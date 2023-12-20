@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('easyadmin/DataTables-1.10.10/media/css/jquery.dataTables.css') }}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="preload hidden">
+        <div class="logo"></div>
+        <div class="loader-frame">
+            <div class="loader1" id="loader1"></div>
+            <div class="loader2" id="loader2"></div>
+        </div>
+    </div>
+   <div>
+       <div class="top-datatable" >
+           <div class="row">
+               <div class="col-md-12">
+                   <div class="col-md-6">
+                       <div class="no-margin">
+                           <h2 class="no-padding" style="color: #999">Unidades</h2>
+                       </div>
+                   </div>
+                   <div class="col-md-6">
+                       <div class="no-margin">
+                           <h2 style="float: right">
+                               <a href="{{ path('addUnidad') }}" data-toggle="tooltip" data-placement="bottom" title="AGREGAR UNIDAD" style="text-decoration: none; color: #999;">
+                                   <i class="fa fa-plus-square fa-1x"></i>
+                               </a>
+                           </h2>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+       <div class="container">
+           <div  id="todos" class="row" style="background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 2px solid #434242;">
+               <div class="col-md-12">
+                   <table id="dataUnidad" class="display" cellspacing="0" width="100%" >
+                       <thead>
+                       <tr>
+                           <th>Provincia</th>
+                           <th>Municipio</th>
+                           <th>Código</th>
+                           <th>Nombre</th>
+                           <th>Acciones</th>
+                       </tr>
+                       </thead>
+                       <tbody>
+                       {% for unidad in unidades %}
+                           <tr data-id ="{{ unidad.id }}">
+                               <td>{{ unidad.getMunicipio.getProvincia().nombre }}</td>
+                               <td>{{ unidad.getMunicipio.nombre }}</td>
+                               <td>{{ unidad.codigo }}</td>
+                               <td>{{ unidad.nombre }}</td>
+                               <td>
+                                   <a href="{{ path('editUnidad' , {idUnidad:unidad.id}) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i> Editar</a>
+                                   <a href="#" class="btn btn-danger btn-xs delete"><i class="fa fa-trash-o "></i> Borrar</a>
+                               </td>
+                           </tr>
+                       {% endfor %}
+                       </tbody>
+                   </table>
+               </div>
+           </div>
+       </div>
+   </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('easyadmin/DataTables-1.10.10/media/js/jquery.dataTables.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            function verificarusuario(){
+                {% if not ((is_granted("ROLE_ADMINISTRADOR") and  app.user.getNivelAcceso().nivel == 'nacional')  or is_granted("ROLE_SUPERUSUARIO")) %}
+                    window.location.href = "{{ path('login') }}";
+                {% endif %}
+            }
+            verificarusuario();
+            $('#dataUnidad').DataTable();
+
+            $('#dataUnidad tbody').on('click', '.delete', function () {
+
+                var row = $(this).parents('tr');
+
+                var mat_datos = { idUnidad: row.data('id') };
+
+                alertify.confirm('Basic: false').set('message', 'Seguro que desea eliminar la Unidad seleccionada').set('onok', function(){
+
+                    $(".preload").removeClass('hidden');
+
+                    $.ajax({
+                        type: "POST",
+                        dataType: "html",
+                        url: '{{ path("deleteUnidad") }}',
+                        data: mat_datos
+                    }).done(function (data) {
+                        $(".preload").addClass('hidden');
+                        if(data == 'ok'){
+
+                            alertify.alert('<strong>La unidad  ha sido eliminada correctamente</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                                .set('label','Aceptar')
+                                .set('onok', function(){
+
+                                    row.fadeOut();
+                                });
+                        }else {
+                            alertify.alert('<strong>'+data+'</strong>')
+                                .setHeader('<span class="glyphicon glyphicon-ok-circle" style="font-size: 20px"></span>' +
+                                    '<h4 class="modal-title" style="display: inline-block; margin-left: 10px">Confirmacion</h4>')
+                                .set('label','Aceptar')
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}
